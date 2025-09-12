@@ -195,7 +195,7 @@ a {
 }
 .nav-link:hover,
 .nav-link.active {
-  background: var(--foreground);
+  background: var(--secondary);
   color: var(--secondary-foreground);
   border-radius: 4px;
 }
