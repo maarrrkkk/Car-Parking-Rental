@@ -9,6 +9,7 @@
   --primary-foreground: #ffffff;
   --secondary: #f1f1f4;
   --secondary-foreground: #030213;
+  --active-button: #ffc234;
   --muted: #ececf0;
   --muted-foreground: #717182;
   --accent: #e9ebef;
@@ -194,10 +195,12 @@ a {
 }
 .nav-link:hover,
 .nav-link.active {
-  background: var(--secondary);
+  background: var(--foreground);
   color: var(--secondary-foreground);
   border-radius: 4px;
 }
+
+
 
 /* Hamburger visible by default */
 .nav-toggle {

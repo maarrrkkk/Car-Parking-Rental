@@ -1,16 +1,12 @@
 <?php
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
-$validPages = ['home', 'about', 'contact', 'login'];
+$validPages = ['home', 'about', 'contact', 'login', 'register'];
 if (!in_array($page, $validPages)) {
     $page = 'home';
 }
-
-// If login page, load it directly and stop
-if ($page === 'login') {
-    include 'pages/auth/user-access.php';
-    exit; // 👈 Prevents navbar & rest of layout from rendering
-}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,7 +33,7 @@ if ($page === 'login') {
                 <li class="nav-item"><a href="?page=home" class="nav-link <?= $page==='home'?'active':'' ?>">Home</a></li>
                 <li class="nav-item"><a href="?page=about" class="nav-link <?= $page==='about'?'active':'' ?>">About</a></li>
                 <li class="nav-item"><a href="?page=contact" class="nav-link <?= $page==='contact'?'active':'' ?>">Contact</a></li>
-                <li class="nav-item"><a href="?page=login" class="nav-link">Login</a></li>
+                <li class="nav-item"><a href="?page=login" class="nav-link login_button <?= $page==='login'?'active':'' ?>">Login</a></li>
             </ul>
             </div>
         </div>
@@ -55,6 +51,12 @@ if ($page === 'login') {
                 break;
             case 'contact':
                 include 'pages/client/contact.php';
+                break;
+            case 'login':
+                include 'includes/login.php';
+                break;
+            case 'register':
+                include 'includes/register.php';
                 break;
             default:
                 include 'pages/client/home.php';
