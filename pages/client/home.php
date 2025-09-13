@@ -2,14 +2,20 @@
 $parkingSpaces = [
     [
         'id' => '1',
-        'location' => 'Centennial Parking',
-        'address' => 'Centennial Parking Area, Calbayog City, Samar',
-        'type' => 'Parking lot',
+        'location' => 'Slot A1',
         'hourlyRate' => 10,
         'dailyRate' => 50,
         'available' => true,
-        'totalSpaces' => 200,
-        'availableSpaces' => 47,
+        'image' => 'assets/images/parking1.jpg',
+        'features' => ['24/7 Security', 'CCTV Monitoring', 'Covered Parking']
+    ],
+    [
+        'id' => '2',
+        'location' => 'Slot A2',
+        'hourlyRate' => 10,
+        'dailyRate' => 50,
+        'available' => false,
+        'image' => 'assets/images/parking2.jpg',
         'features' => ['24/7 Security', 'CCTV Monitoring', 'Covered Parking']
     ]
 ];
@@ -29,40 +35,16 @@ $parkingSpaces = [
     <h1 class="display-3 fw-bold">No Parking Space Near City?</h1>
     <p class="lead">Reserve your spot now at Centennial Parking, Calbayog City. Safe, convenient, and affordable.</p>
     <a href="#" class="btn btn-primary btn-md">Book Parking Now</a>
-    <a href="#" class="btn btn-outline-light btn-md">Learn More</a>
+    <a href="?page=about" class="btn btn-outline-light btn-md">Learn More</a>
   </div>
 </section>
 
 <!-- Available Parking Space Section -->
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="row g-4">
-            <?php foreach ($parkingSpaces as $space): ?>
-                <div class="col-md-4">
-                    <div class="card shadow-sm h-100" style="height: 350px;"> <!-- fixed height -->
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title"><?= htmlspecialchars($space['location']) ?></h5>
-                            <p class="card-text text-muted">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <?= htmlspecialchars($space['address']) ?>
-                            </p>
-                            <span class="badge <?= $space['available'] ? 'bg-success' : 'bg-danger' ?>">
-                                <?= $space['available'] ? 'Available' : 'Full' ?>
-                            </span>
-                            <p class="mt-3"><i class="fas fa-car"></i> <?= htmlspecialchars($space['type']) ?></p>
-                            <p><strong><?= $space['availableSpaces'] ?>/<?= $space['totalSpaces'] ?></strong> spaces</p>
-                            <p>₱<?= $space['hourlyRate'] ?>/hr | ₱<?= $space['dailyRate'] ?>/day</p>
 
-                            <div class="mt-auto">
-                                <a href="#" class="btn btn-sm <?= $space['available'] ? 'btn-primary' : 'btn-secondary disabled' ?>">
-                                    <?= $space['available'] ? 'Book Now' : 'Waitlist' ?>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+    <?php include 'pages/client/components/card.php'; ?>
+
     </div>
 </section>
 
@@ -70,7 +52,7 @@ $parkingSpaces = [
 <!-- Featured section -->
 <section class="py-5 bg-white">
     <div class="container text-center">
-        <h2 class="mb-5">Why Choose Centennial Parking, Calbayog City?</h2>
+        <h2 class="mb-5">Why Choose Car Parking Rental, Calbayog City?</h2>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="p-4">

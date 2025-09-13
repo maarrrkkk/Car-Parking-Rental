@@ -14,6 +14,7 @@ if (!in_array($page, $validPages)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Parking Rental</title>
+    <link rel="shortcut icon" href="assets/images/faviconpng" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="assets/css/main.css"> <!-- keep only overrides -->
@@ -24,17 +25,20 @@ if (!in_array($page, $validPages)) {
     <!-- Bootstrap Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="?page=home">Car Parking Rental</a>
+            <div class="d-flex align-items-start" onclick="location.href='?page=home'" style="cursor: pointer;">
+                <img src="assets/images/logo.png" alt="Car Parking Rental Logo" style="height: 40px; width: 40px; margin-right: 10px;"> 
+                <a class="navbar-brand fw-bold">Car Parking Rental</a>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a href="?page=home" class="nav-link <?= $page==='home'?'active':'' ?>">Home</a></li>
-                <li class="nav-item"><a href="?page=about" class="nav-link <?= $page==='about'?'active':'' ?>">About</a></li>
-                <li class="nav-item"><a href="?page=contact" class="nav-link <?= $page==='contact'?'active':'' ?>">Contact</a></li>
-                <li class="nav-item"><a href="?page=login" class="nav-link login_button <?= $page==='login'?'active':'' ?>">Login</a></li>
-            </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="?page=home" class="nav-link <?= $page === 'home' ? 'active' : '' ?>">Home</a></li>
+                    <li class="nav-item"><a href="?page=about" class="nav-link <?= $page === 'about' ? 'active' : '' ?>">About</a></li>
+                    <li class="nav-item"><a href="?page=contact" class="nav-link <?= $page === 'contact' ? 'active' : '' ?>">Contact</a></li>
+                    <li class="nav-item"><a href="?page=login" class="nav-link login_button <?= $page === 'login' ? 'active' : '' ?>">Login</a></li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -94,5 +98,5 @@ if (!in_array($page, $validPages)) {
     </footer>
     <script src="assets/js/main.js"></script>
 </body>
- 
+
 </html>
