@@ -15,10 +15,15 @@
                 <div class="margin-top-auto p-3 gap-2 d-flex flex-column">
 
 
-                    <button class="card__btn2_stroke">
+                    <!-- View Details -->
+                    <button class="card__btn2_stroke" onclick="handleViewDetails(<?= $space['id'] ?>)">
                         View Details
                     </button>   
-                    <button class="card__btn2 <?= $space['available'] ? '' : 'disabled' ?>">
+
+                    <!-- Book Now -->
+                    <button 
+                        class="card__btn2 <?= $space['available'] ? '' : 'disabled' ?>"
+                        onclick="handleBooking(<?= $space['id'] ?>)">
                         <?= $space['available'] ? 'Book Now' : 'Waitlist' ?>
                     </button>
                 </div>

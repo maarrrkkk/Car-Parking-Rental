@@ -1,4 +1,5 @@
 <?php
+
 $parkingSpaces = [
     [
         'id' => '1',
@@ -43,7 +44,7 @@ $parkingSpaces = [
 <section class="py-5 bg-light">
     <div class="container">
 
-    <?php include 'pages/client/components/card.php'; ?>
+    <?php include 'includes/partials/card.php'; ?>
 
     </div>
 </section>

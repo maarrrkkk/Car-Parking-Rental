@@ -1100,6 +1100,17 @@ a {
 /* ============================== Cards CSS ================================ */
 
 
+/* ============================== Registration and login invalid input CSS ================================ */
+
+.is-invalid {
+    border-color: red !important;
+    background-color: #ffe6e6 !important;
+}
+
+/* ============================== Registration and login invalid input CSS ================================ */
+
+
+
 /* Responsive Design */
 @media (min-width: 640px) {
   .hero-buttons {
