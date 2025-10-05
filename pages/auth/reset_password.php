@@ -6,7 +6,7 @@ $message = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 
 if (empty($token)) {
-    header("Location: index.php?page=login");
+    header("Location: " . $baseUrl . "/index.php?page=login");
     exit;
 }
 
@@ -79,7 +79,7 @@ try {
         </form>
 
         <p class="text-center mt-3 mb-0">
-            <a href="?page=login">Back to Login</a>
+            <a href="<?php echo $baseUrl; ?>/index.php?page=login">Back to Login</a>
         </p>
     </div>
 </div>
