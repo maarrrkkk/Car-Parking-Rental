@@ -90,24 +90,6 @@ try {
     $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS truck_rate DECIMAL(10,2) DEFAULT 300.00");
     $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS mini_truck_rate DECIMAL(10,2) DEFAULT 350.00");
 
-    // Insert default slots if not exists
-    $checkSlots = $pdo->prepare("SELECT COUNT(*) FROM slots");
-    $checkSlots->execute();
-    $slotCount = $checkSlots->fetchColumn();
-
-    if ($slotCount == 0) {
-        $pdo->exec("
-            INSERT INTO slots (name, hourly_rate, daily_rate, monthly_rate, motorcycle_rate, car_rate, suv_rate, van_rate, truck_rate, mini_truck_rate, available, image) VALUES
-            ('Slot A1', 300.00, 1500.00, 15000.00, 50.00, 150.00, 200.00, 250.00, 300.00, 350.00, 1, 'assets/images/parking_slots/slot_68d2ab32ae35f_Screenshot 2025-09-23 150528.png'),
-            ('Slot A2', 300.00, 1500.00, 15000.00, 50.00, 150.00, 200.00, 250.00, 300.00, 350.00, 1, 'assets/images/parking_slots/slot_68d2adb2f2406_IMG20250922014820.png'),
-            ('Slot B1', 350.00, 1750.00, 17500.00, 50.00, 150.00, 200.00, 250.00, 300.00, 350.00, 1, 'assets/images/parking_slots/slot_68d2ae7555ed8_c2f51e19-f899-47fb-8cbd-c605d1b4e93e.jpg'),
-            ('Slot B2', 350.00, 1750.00, 17500.00, 50.00, 150.00, 200.00, 250.00, 300.00, 350.00, 1, 'assets/images/parking_slots/slot_68dd2f6e8a5ee_parking_slot_for_long_term_ren_1672130030_ccc19776_progressive.jpg'),
-            ('Slot C1', 400.00, 2000.00, 20000.00, 50.00, 150.00, 200.00, 250.00, 300.00, 350.00, 1, 'assets/images/parking_slots/slot_68d24b2e6f0fa_Screenshot 2025-09-23 150528.png')
-        ");
-        if ($showOutput) echo "Default slots inserted.<br>";
-    } else {
-        if ($showOutput) echo "Slots already exist, skipping insertion.<br>";
-    }
 
     // Create bookings table
     $pdo->exec("
