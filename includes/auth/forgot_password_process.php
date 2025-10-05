@@ -61,7 +61,7 @@ try {
     $mail->addReplyTo($env['SMTP_USERNAME'] ?? 'yourgmail@gmail.com', 'Car Parking Rental Support');
     $mail->addAddress($email, $user['firstname']);
 
-    $resetLink = "http://localhost/Github/Car-Parking-Rental/index.php?page=reset_password&token=" . $resetToken;
+    $resetLink = "http://localhost" . $baseUrl . "/index.php?page=reset_password&token=" . $resetToken;
 
     $mail->isHTML(false);
     $mail->Subject = 'Password Reset - Car Parking Rental';

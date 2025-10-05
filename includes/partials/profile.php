@@ -78,7 +78,7 @@ if (!$admin) {
                 </div>
             <?php endif; ?>
 
-            <form action="/Github/Car-Parking-Rental/includes/auth/upload_qr.php" method="post" enctype="multipart/form-data">
+            <form action="<?php echo $baseUrl; ?>/includes/auth/upload_qr.php" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="qr_image" class="form-label">Upload New QR Code</label>
                     <input type="file" class="form-control" id="qr_image" name="qr_image" accept="image/png,image/jpg,image/jpeg" required>

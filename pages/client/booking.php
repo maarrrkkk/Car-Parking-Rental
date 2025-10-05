@@ -3,14 +3,14 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: /Github/Car-Parking-Rental/index.php?page=login&status=error&message=Please login first.");
+    header("Location: " . $baseUrl . "/index.php?page=login&status=error&message=Please login first.");
     exit;
 }
 
 // Get slot ID from URL
 $slotId = $_GET['id'] ?? null;
 if (!$slotId) {
-    header("Location: /Github/Car-Parking-Rental/index.php?page=home&status=error&message=Invalid slot.");
+    header("Location: " . $baseUrl . "/index.php?page=home&status=error&message=Invalid slot.");
     exit;
 }
 
@@ -20,7 +20,7 @@ $stmt->execute(['id' => $slotId]);
 $slot = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$slot) {
-    header("Location: /Github/Car-Parking-Rental/index.php?page=home&status=error&message=Slot not available.");
+    header("Location: " . $baseUrl . "/index.php?page=home&status=error&message=Slot not available.");
     exit;
 }
 
@@ -120,7 +120,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                         </div>
 
                         <button type="submit" class="btn btn-primary" id="submitBtn">Proceed to Payment</button>
-                        <a href="/Github/Car-Parking-Rental/index.php?page=home" class="btn btn-secondary">Cancel</a>
+                        <a href="<?php echo $baseUrl; ?>/index.php?page=home" class="btn btn-secondary">Cancel</a>
                     </form>
 
                     <!-- Payment Step -->
@@ -365,7 +365,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
         formData.append('start_time', startTime);
         formData.append('end_time', endTime);
 
-        fetch('/Github/Car-Parking-Rental/api/booking.php', {
+        fetch('<?php echo $baseUrl; ?>/api/booking.php', {
                 method: 'POST',
                 body: formData
             })
@@ -417,7 +417,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
             return;
         }
 
-        fetch('/Github/Car-Parking-Rental/api/booking.php', {
+        fetch('<?php echo $baseUrl; ?>/api/booking.php', {
                 method: 'POST',
                 body: formData
             })
@@ -425,7 +425,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
             .then(data => {
                 if (data.success) {
                     alert('Payment confirmed successfully! Your booking is now pending approval.');
-                    window.location.href = '/Github/Car-Parking-Rental/index.php?page=profile';
+                    window.location.href = '<?php echo $baseUrl; ?>/index.php?page=profile';
                 } else {
                     alert('Error: ' + data.message);
                 }

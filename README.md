@@ -37,6 +37,13 @@ A web-based car parking rental system built with PHP, MySQL, and Bootstrap.
 
    Copy the `.env` file and update the following settings:
 
+   #### Base URL Configuration
+   ```env
+   # Change this to match your installation path
+   # Examples: /Car-Parking-Rental, /parking, / (if installed in root)
+   BASE_URL=/Car-Parking-Rental
+   ```
+
    #### Database Configuration
    ```env
    DB_HOST=localhost
@@ -100,6 +107,9 @@ nano .env  # or use any text editor
 
 **Configure these settings in `.env`:**
 ```env
+# Base URL - Change this to match your installation path
+BASE_URL=/Car-Parking-Rental
+
 # Database settings (your local MySQL)
 DB_HOST=localhost
 DB_NAME=car_parking_rental_db
