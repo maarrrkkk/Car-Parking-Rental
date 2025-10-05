@@ -240,6 +240,52 @@ SMTP_PASSWORD=your_16_character_app_password
 - Check that the `assets/images/` directories are writable
 - Ensure proper file permissions (755 for directories, 644 for files)
 
+### .env File Parsing Error
+If you encounter an error like "syntax error, unexpected '(' in .env on line 13":
+
+1. **Delete the corrupted .env file:**
+   ```bash
+   rm .env
+   ```
+
+2. **Recreate .env from scratch:**
+   ```bash
+   # Copy from template
+   cp .env.example .env
+
+   # Or create manually with these commands:
+   echo DB_HOST=localhost > .env
+   echo DB_NAME=car_parking_rental_db >> .env
+   echo DB_USER=root >> .env
+   echo DB_PASS= >> .env
+   echo. >> .env
+   echo # admin user default credentials >> .env
+   echo ADMIN_FIRSTNAME=Super >> .env
+   echo ADMIN_LASTNAME=Admin >> .env
+   echo ADMIN_EMAIL=admin@carparking.com >> .env
+   echo ADMIN_PHONE=09123456789 >> .env
+   echo ADMIN_PASSWORD=Qwerty12345 >> .env
+   echo. >> .env
+   echo # Email Configuration >> .env
+   echo SMTP_HOST=smtp.gmail.com >> .env
+   echo SMTP_PORT=587 >> .env
+   echo SMTP_USERNAME=yourgmail@gmail.com >> .env
+   echo SMTP_PASSWORD=your_app_password >> .env
+   echo SMTP_ENCRYPTION=tls >> .env
+   ```
+
+3. **Edit with your actual credentials:**
+   ```bash
+   nano .env  # or use any text editor
+   ```
+
+4. **Test the configuration:**
+   ```bash
+   php -r "$env = parse_ini_file('.env'); echo 'Config loaded successfully';"
+   ```
+
+**Cause:** The .env file may contain invisible characters, encoding issues, or formatting problems that prevent PHP's `parse_ini_file()` function from reading it correctly.
+
 ## Security Notes
 
 - Change default admin password after first login
