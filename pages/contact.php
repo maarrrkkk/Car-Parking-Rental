@@ -160,7 +160,7 @@ $faqItems = [
             <p class="cta-subtitle">Don't hesitate to reach out. Our customer support team is standing by to help.</p>
             <div class="cta-buttons">
                 <button class="btn btn-primary btn-lg">Call Now: +63 917 123 4567</button>
-                <button class="btn btn-outline btn-lg">Live Chat Support</button>
+                <button class="btn btn-outline btn-lg text-dark">Live Chat Support</button>
             </div>
         </div>
     </div>

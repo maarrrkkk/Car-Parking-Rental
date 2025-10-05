@@ -2,7 +2,7 @@
   <div class="container-fluid nav-padding">
     <!-- Brand -->
     <a class="navbar-brand d-flex align-items-center" href="index.php">
-      <img src="../../assets/images/logo.png" alt="Logo" class="me-2" style="height:30px;">
+      <img src="../../assets/images/logo-white.png" alt="Logo" class="me-2" style="height:30px;">
       <span class="d-none d-sm-inline">Car Parking Rental - Admin</span>
     </a>
 
