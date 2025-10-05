@@ -12,6 +12,9 @@ if (file_exists($envFile)) {
     $env = [];
 }
 
+// Base URL configuration - change this to match your installation path
+$baseUrl = $env['BASE_URL'] ?? '/Car-Parking-Rental';
+
 // Database configuration with fallback defaults
 $host = $env['DB_HOST'] ?? "localhost";
 $dbname = $env['DB_NAME'] ?? "car_parking_rental_db";

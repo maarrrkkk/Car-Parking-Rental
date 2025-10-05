@@ -6,7 +6,7 @@ require_once '../../config/database.php';
 
 // Check if admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: /Github/Car-Parking-Rental/index.php?page=login");
+    header("Location: " . $baseUrl . "/index.php?page=login");
     exit;
 }
 
@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['qr_image'])) {
     $allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
     if (!in_array($file['type'], $allowedTypes)) {
         $_SESSION['qr_upload_error'] = 'Invalid file type. Only PNG, JPG, and JPEG are allowed.';
-        header("Location: /Github/Car-Parking-Rental/pages/admin/index.php?current_page=profile");
+        header("Location: " . $baseUrl . "/pages/admin/index.php?current_page=profile");
         exit;
     }
 
     if ($file['size'] > 5 * 1024 * 1024) { // 5MB limit
         $_SESSION['qr_upload_error'] = 'File size too large. Maximum 5MB allowed.';
-        header("Location: /Github/Car-Parking-Rental/pages/admin/index.php?current_page=profile");
+        header("Location: " . $baseUrl . "/pages/admin/index.php?current_page=profile");
         exit;
     }
 

@@ -150,7 +150,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 return;
             }
 
-            fetch('/Github/Car-Parking-Rental/api/user.php?action=change_password', {
+            fetch('<?php echo $baseUrl; ?>/api/user.php?action=change_password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ current_password: current, new_password: newPass })
@@ -178,7 +178,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const email = document.getElementById('editEmail').value;
             const phone = document.getElementById('editPhone').value;
 
-            fetch('/Github/Car-Parking-Rental/api/user.php?action=update_profile', {
+            fetch('<?php echo $baseUrl; ?>/api/user.php?action=update_profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ firstname: firstName, lastname: lastName, email: email, phone: phone })
