@@ -72,11 +72,12 @@ A web-based car parking rental system built with PHP, MySQL, and Bootstrap.
 
 4. **Set up the database:**
 
-   The application will automatically create the database and tables when you first access `setup.php` in your browser.
+    The application will automatically create the database and tables when you first access `setup.php` in your browser.
 
-   - Open your browser and navigate to: `http://yourdomain.com/setup.php`
-   - The script will create all necessary tables and insert default data
-   - Default admin login: `admin@yourdomain.com` / `Qwerty12345`
+    - Open your browser and navigate to: `http://yourdomain.com/setup.php`
+    - The script will create all necessary tables and the default admin user
+    - Default admin login: `admin@carparking.com` / `Qwerty12345`
+    - **Note:** No default parking slots are created. You must add them manually through the admin dashboard after logging in.
 
 ## Collaborator Setup Guide
 
@@ -139,7 +140,8 @@ Access at: `http://localhost:8000`
 
 ### Step 5: Database Initialization
 - Open browser and go to: `http://localhost/Car-Parking-Rental/setup.php`
-- The setup script automatically creates database, tables, and default data
+- The setup script automatically creates database, tables, and the default admin user
+- **Note:** No default parking slots are created. You must add them manually through the admin dashboard.
 
 ### Step 6: Access the Application
 - **Main site:** `http://localhost/Car-Parking-Rental/index.php`
