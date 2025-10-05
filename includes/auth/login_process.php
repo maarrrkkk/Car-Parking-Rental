@@ -12,6 +12,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password'])) {
+        // Check if email is verified
+        if ($user['email_verified'] != 1) {
+            header("Location: ../../index.php?page=verify_email&email=" . urlencode($email) . "&status=error&message=Please verify your email before logging in");
+            exit;
+        }
         // ======================
         // Check last login logic
         // ======================

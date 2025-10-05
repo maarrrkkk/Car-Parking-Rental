@@ -39,7 +39,7 @@ $teamMembers = [
   <!-- Content -->
   <div class="container position-relative text-center py-5">
     <h1 class="display-3 fw-bold mb-3">About Car Parking Rental</h1>
-    <p class="lead fs-4">Revolutionizing urban parking since 2016</p>
+    <p class="lead fs-4">Dedicated parking solutions for Centennial City residents</p>
   </div>
 </section>
 
@@ -51,11 +51,11 @@ $teamMembers = [
             <div class="story-content">
                 <h2 class="section-title">Our Story</h2>
                 <div class="story-text">
-                    <p>ParkEase was founded in 2016 with a simple mission: to eliminate the stress and frustration of finding parking in busy urban areas. Our founders, experienced in urban planning and technology, recognized that parking was one of the biggest pain points for city dwellers and visitors alike.</p>
-                    
-                    <p>What started as a small network of 10 parking locations has grown into a comprehensive platform serving over 50,000 users across 200+ premium parking facilities. We've partnered with property owners, businesses, and municipalities to create a seamless parking experience that benefits everyone.</p>
-                    
-                    <p>Today, ParkEase continues to innovate in the smart parking space, integrating cutting-edge technology with human-centered design to make urban mobility more efficient and accessible.</p>
+                    <p>Car Parking Rental was established to provide convenient and reliable parking solutions exclusively for Centennial City residents. Our mission is to address the unique parking challenges in our local community, ensuring that residents have easy access to secure parking spaces.</p>
+
+                    <p>We offer a range of parking options tailored to the needs of Centennial City, from hourly rentals to monthly subscriptions. Our commitment is to support local mobility and contribute to the well-being of our community.</p>
+
+                    <p>Today, we continue to serve the Centennial City area with dedication, focusing on quality service and customer satisfaction in our local environment.</p>
                 </div>
             </div>
             <div class="stats-grid">
@@ -117,7 +117,7 @@ $teamMembers = [
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Meet Our Team</h2>
-            <p class="section-subtitle">The passionate people behind ParkEase</p>
+            <p class="section-subtitle">The dedicated team serving Centennial City</p>
         </div>
         <div class="team-grid">
             <?php foreach ($teamMembers as $member): ?>

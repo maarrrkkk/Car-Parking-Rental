@@ -1,82 +1,69 @@
 <?php
-$host = "localhost";          
-$dbname = "car_parking_rental_db";    
-$username = "root";           
-$password = "";               
+/**
+ * Car Parking Rental System - Database Connection
+ * Auto-run setup if DB/tables are missing
+ */
+
+// Load environment variables from .env file
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $env = parse_ini_file($envFile);
+} else {
+    $env = [];
+}
+
+// Database configuration with fallback defaults
+$host = $env['DB_HOST'] ?? "localhost";
+$dbname = $env['DB_NAME'] ?? "car_parking_rental_db";
+$username = $env['DB_USER'] ?? "root";
+$password = $env['DB_PASS'] ?? "";
+$port = $env['DB_PORT'] ?? "3306";
 
 try {
-    // Connect to MySQL server only (no DB yet)
-    $pdo = new PDO("mysql:host=$host", $username, $password);
+    // Try to connect directly to the DB
+    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Create database if not exists
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    // Check if a critical table exists (users)
+    $check = $pdo->query("SHOW TABLES LIKE 'users'");
+    if ($check->rowCount() === 0) {
+        // Run setup if schema missing
+        require_once __DIR__ . '/../setup.php';
+    } else {
+        // Ensure table has all required columns (for existing databases)
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verification_code VARCHAR(255) NULL");
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified TINYINT(1) DEFAULT 0");
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires TIMESTAMP NULL");
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR(255) NULL");
+        $pdo->exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_expires TIMESTAMP NULL");
 
-    // Reconnect with DB selected
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        // Check if slots table exists before altering
+        $checkSlots = $pdo->query("SHOW TABLES LIKE 'slots'");
+        if ($checkSlots->rowCount() > 0) {
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS motorcycle_rate DECIMAL(10,2) DEFAULT 50.00");
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS car_rate DECIMAL(10,2) DEFAULT 150.00");
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS suv_rate DECIMAL(10,2) DEFAULT 200.00");
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS van_rate DECIMAL(10,2) DEFAULT 250.00");
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS truck_rate DECIMAL(10,2) DEFAULT 300.00");
+            $pdo->exec("ALTER TABLE slots ADD COLUMN IF NOT EXISTS mini_truck_rate DECIMAL(10,2) DEFAULT 350.00");
+        }
 
-    // Create users table
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            role ENUM('admin','user') DEFAULT 'user',
-            firstname VARCHAR(100) NOT NULL,
-            lastname VARCHAR(100) NOT NULL,
-            email VARCHAR(150) NOT NULL UNIQUE,
-            phone VARCHAR(20) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            status ENUM('Active','Inactive','Suspended') DEFAULT 'Active',
-            total_bookings INT DEFAULT 0,
-            total_spent DECIMAL(10,2) DEFAULT 0.00,
-            member_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_login TIMESTAMP NULL DEFAULT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB;
-    ");
+        // Check if bookings table exists before altering
+        $checkBookings = $pdo->query("SHOW TABLES LIKE 'bookings'");
+        if ($checkBookings->rowCount() > 0) {
+            $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS vehicle_type ENUM('motorcycle','car','suv','van','truck','mini_truck') NOT NULL DEFAULT 'car'");
+            $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0.00");
+            $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receipt VARCHAR(255) NULL");
+            $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL");
+        }
 
-    // Create slots table with correct fields
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS slots (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(50) NOT NULL UNIQUE, -- Slot 1, Slot 2, etc.
-            hourly_rate DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-            daily_rate DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-            available TINYINT(1) DEFAULT 1, -- 1 = available, 0 = not available
-            image VARCHAR(255) DEFAULT NULL, -- image path
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB;
-    ");
-
-    // Create bookings table
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS bookings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id INT NOT NULL,
-            slot_id INT NOT NULL,
-            start_time DATETIME NOT NULL,
-            end_time DATETIME DEFAULT NULL,
-            status ENUM('active','completed','cancelled') DEFAULT 'active',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-    ");
-
-    // Create payments table
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS payments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            booking_id INT NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            method ENUM('cash','card','gcash') DEFAULT 'cash',
-            status ENUM('pending','paid','failed') DEFAULT 'pending',
-            paid_at TIMESTAMP NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB;
-    ");
+    }
 
 } catch (PDOException $e) {
-    die("Database setup failed: " . $e->getMessage());
+    if (strpos($e->getMessage(), "Unknown database") !== false) {
+        // Run setup if DB missing
+        require_once __DIR__ . '/../setup.php';
+    } else {
+        die("Database connection failed: " . $e->getMessage());
+    }
 }

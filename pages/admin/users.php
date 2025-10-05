@@ -1,11 +1,5 @@
 <?php
-// session_start();
-// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-//     header('Location: ../../pages/auth/login.php');
-//     exit();
-// }
-// 
-
+include '../../includes/auth/admin_auth.php';
 require_once "../../includes/auth/fetch_data.php";
 ?>
 
@@ -129,10 +123,10 @@ require_once "../../includes/auth/fetch_data.php";
                     <tbody>
                         <?php foreach ($users as $user): ?>
                             <tr data-id="<?= $user['id'] ?>">
-                                <td><input type="checkbox" name="selectedUsers[]" value="<?= $user['id'] ?>"></td>
-                                <td><strong>#<?= sprintf("%04d", $user['id']) ?></strong></td>
-                                <td class="editable" data-field="name"><?= htmlspecialchars(($user['firstname'] ?? '') . " " . ($user['lastname'] ?? '')) ?></td>
-                                <td class="editable" data-field="email"><?= htmlspecialchars($user['email'] ?? '-') ?></td>
+                                <td data-label="Select"><input type="checkbox" name="selectedUsers[]" value="<?= $user['id'] ?>"></td>
+                                <td data-label="ID"><strong>#<?= sprintf("%04d", $user['id']) ?></strong></td>
+                                <td data-label="Name" class="editable" data-field="name"><?= htmlspecialchars(($user['firstname'] ?? '') . " " . ($user['lastname'] ?? '')) ?></td>
+                                <td data-label="Email" class="editable" data-field="email"><?= htmlspecialchars($user['email'] ?? '-') ?></td>
                                 <td class="editable" data-field="phone"><?= htmlspecialchars($user['phone'] ?? '-') ?></td>
                                 <td class="editable" data-field="status"><?= htmlspecialchars($user['status'] ?? 'Inactive') ?></td>
                                 <td class="editable" data-field="total_bookings"><?= htmlspecialchars($user['total_bookings'] ?? 0) ?></td>

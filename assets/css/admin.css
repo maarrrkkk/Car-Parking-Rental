@@ -23,14 +23,38 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 100;
-  padding: 48px 0 0;
+  padding: 5rem 0 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
   .sidebar {
-    top: 5rem;
+    padding: 0 !important;
+  }
+  
+}
+
+/* In admin.css */
+.table-scroll-indicator::after {
+  content: "↔ Scroll to view more";
+  display: block;
+  text-align: right;
+  font-size: 0.7rem;
+  color: #6c757d;
+  padding-top: 0.25rem;
+}
+
+.nav-padding {
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+@media (max-width: 576px) {
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
   }
 }
 
@@ -38,7 +62,7 @@ body {
   position: relative;
   top: 0;
   height: calc(100vh - 48px);
-  padding-top: .5rem;
+  padding-top: 1rem;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -124,7 +148,20 @@ body {
   height: .5rem;
 }
 
+.table-responsive {
+  font-size: 0.85rem;
+}
 
+@media (max-width: 576px) {
+  .table-responsive {
+    font-size: 0.75rem;
+  }
+
+  .table th,
+  .table td {
+    white-space: nowrap;
+  }
+}
 
 /* Tables */
 .table th {
@@ -156,10 +193,13 @@ body {
 }
 
 .btn-icon {
-    padding: 0.25rem 0.25rem;   /* smaller padding */
-    font-size: 0.75rem;        /* smaller icon size */
-    line-height: 1;
-    border-radius: 50%;        /* makes them circular */
+  padding: 0.25rem 0.25rem;
+  /* smaller padding */
+  font-size: 0.75rem;
+  /* smaller icon size */
+  line-height: 1;
+  border-radius: 50%;
+  /* makes them circular */
 }
 
 /* Navbar */
@@ -182,13 +222,15 @@ body {
 }
 
 /* Form controls */
-.form-control, .form-select {
+.form-control,
+.form-select {
   border: 1px solid #d1d3e2;
   border-radius: 0.35rem;
   font-size: 0.875rem;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: #bac8f3;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
@@ -203,27 +245,101 @@ body {
   margin-left: 0;
 }
 
-.no-gutters > .col,
-.no-gutters > [class*="col-"] {
+.no-gutters>.col,
+.no-gutters>[class*="col-"] {
   padding-right: 0;
   padding-left: 0;
 }
 
+/* Better mobile view for tables */
+@media (max-width: 576px) {
+  /* This targets any table inside a .table-responsive container */
+  .table-responsive table {
+    display: block;
+    width: 100%;
+  }
+  .table-responsive thead {
+    display: none; /* Hide the original table header */
+  }
+  .table-responsive tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.35rem;
+  }
+  .table-responsive td {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: none;
+    border-bottom: 1px solid #eee;
+  }
+  .table-responsive td:last-child {
+    border-bottom: none;
+  }
+  /* Use a data-label attribute to show the column header */
+  .table-responsive td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: 1rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #555;
+  }
+}
+
+@media (max-width: 768px) {
+  .table .collapse {
+    display: block !important;
+    width: 100% !important;
+    position: relative;
+    margin-top: 0.5rem;
+  }
+  .table .collapse form {
+    width: 100%;
+  }
+
+  .sidebar {
+    position: relative !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+}
+
+/* On small screens: stack column-reverse */
+@media (max-width: 576px) {
+  .action-buttons {
+    flex-direction: column-reverse !important;
+    align-items: center;
+    width: 100%;
+  }
+  .action-buttons form,
+  .action-buttons button {
+    width: 100%; /* full-width buttons on mobile */
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
+
+  .nav-padding {
+    gap: 2rem;
+  }
+
   .container-fluid {
     padding-left: 15px;
     padding-right: 15px;
   }
-  
+
   .card-body {
     padding: 1rem;
   }
-  
+
   .table-responsive {
     font-size: 0.8rem;
   }
 }
+
 
 /* Animation for loading states */
 @keyframes fadeIn {
@@ -231,6 +347,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -241,23 +358,6 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Custom scrollbar */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
 
 /* Chart container adjustments */
 canvas {
@@ -292,11 +392,12 @@ canvas {
 }
 
 /* Dropdown customizations */
-.dropdown-menu {
+/* .dropdown-menu {
   border: none;
   box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
   border-radius: 0.35rem;
 }
+
 
 .dropdown-item {
   font-size: 0.875rem;
@@ -306,7 +407,29 @@ canvas {
 .dropdown-item:hover {
   background-color: rgba(0, 123, 255, 0.1);
   color: var(--primary-color);
+} */
+
+/* Dropdown UI Enhancements */
+.dropdown-menu {
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
 }
+
+.dropdown-menu .dropdown-item {
+  border-radius: 0.35rem;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: var(--primary-color);
+}
+
+.dropdown-menu .dropdown-item i {
+  width: 1.25rem;
+  text-align: center;
+}
+
 
 /* Loading spinner */
 .spinner-border-sm {

@@ -10,9 +10,9 @@ try {
     // Card 1: Total Parking Spaces (from slots table)
     $totalSpaces = $pdo->query("SELECT COUNT(*) FROM slots")->fetchColumn();
 
-    // Card 2: Today's Revenue (from payments table)
-    // Sums the 'amount' from payments that are 'paid' today.
-    $stmtRevenue = $pdo->prepare("SELECT SUM(amount) FROM payments WHERE status = 'paid' AND DATE(paid_at) = CURDATE()");
+    // Card 2: Today's Revenue (from bookings table)
+    // Sums the 'amount' from bookings that are 'completed' today.
+    $stmtRevenue = $pdo->prepare("SELECT SUM(amount) FROM bookings WHERE status = 'completed' AND DATE(paid_at) = CURDATE()");
     $stmtRevenue->execute();
     $todayRevenue = $stmtRevenue->fetchColumn() ?: 0.00; // Use 0 if no revenue today
 

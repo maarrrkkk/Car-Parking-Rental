@@ -28,9 +28,6 @@ try {
             $stmt = $pdo->prepare("DELETE FROM bookings WHERE id = :id");
             break;
 
-        case "payment":
-            $stmt = $pdo->prepare("DELETE FROM payments WHERE id = :id");
-            break;
 
         default:
             echo json_encode(["success" => false, "message" => "Unknown type"]);

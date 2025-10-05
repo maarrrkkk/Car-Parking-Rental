@@ -94,10 +94,6 @@ a {
   min-height: 100vh;
 }
 
-.hero-background-image {
-
-}
-
 /* Navigation
 .navbar {
   border-bottom: 1px solid var(--border);
@@ -220,7 +216,7 @@ a {
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
-  border: none;
+  border: solid 1px;
   border-radius: var(--radius);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
@@ -431,44 +427,121 @@ a {
 }
 
 .hero-inner {
-  position: relative; /* make it sit above background */
-  z-index: 2; /* higher than overlay */
+  position: relative;
+  z-index: 2;
   display: flex;
-  justify-content: flex-end; /* push content to the right */
+  justify-content: flex-end;
   width: 100%;
-  padding: 0 4rem; /* add breathing space */
-}
-
-.hero-content {
-  max-width: 600px;
-  text-align: left; /* keep text aligned */
+  padding: 0 4rem;
 }
 
 .hero-content {
   text-align: left;
+  z-index: 3;
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-size: clamp(1.8rem, 3vw + 1rem, 3.5rem); /* dynamic scaling */
+  font-weight: 700;
+  line-height: 1.2;
   margin-bottom: 1.5rem;
+  color: #000000;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 1.2vw + 0.8rem, 1.5rem); /* scales smoothly */
   margin-bottom: 2rem;
-  color: #d1d5db;
+  color: #000000;
+  line-height: 1.6;
 }
 
 .hero-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+}
+
+.hero-buttons .btn {
+  font-size: clamp(0.9rem, 1vw + 0.5rem, 1.125rem);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.hero-buttons .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
 }
 
 .hero-side-image img {
   width: 100%;
+  max-width: 420px;
   border-radius: 1rem;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
 }
+
+.hero-side-image img:hover {
+  transform: scale(1.05);
+}
+
+/* Scroll indicator */
+.scroll-indicator i {
+  animation: bounce 1.5s infinite;
+}
+
+/* === Responsive Breakpoints === */
+
+/* Tablets (<= 991px) */
+@media (max-width: 991px) {
+  .hero-section {
+    height: auto;
+    padding: 5rem 0;
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-inner {
+    justify-content: center;
+    padding: 0 2rem;
+  }
+
+  .hero-side-image img {
+    max-width: 300px;
+    margin: 2rem auto 0;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+}
+
+/* Mobile (<= 576px) */
+@media (max-width: 576px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .hero-buttons .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .hero-side-image img {
+    max-width: 250px;
+  }
+
+  .scroll-indicator {
+    bottom: 1rem;
+  }
+}
+
 
 /* Section Headers */
 .section-header {
@@ -809,6 +882,15 @@ a {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .info-content {
@@ -819,6 +901,14 @@ a {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
+  flex-wrap: nowrap; /* keep icon + text on one line but allow text to wrap inside */
+}
+
+.info-details {
+  flex: 1; /* ensures the text container takes up remaining space */
+  min-width: 0; /* prevents flexbox text overflow */
+  word-wrap: break-word; /* allows long words to wrap properly */
+  overflow-wrap: break-word; /* ensures consistent wrapping in all browsers */
 }
 
 .info-icon {
@@ -1005,99 +1095,187 @@ a {
 
 /* ============================== Cards CSS ================================ */
 
-/* From Uiverse.io by Creatlydev */ 
+/* Elegant Card Design */
 .card {
-  margin: auto;
-  width: min(400px, 100%);
-  background-color: #fefefe;
+  background: #fff;
   border-radius: 1rem;
-  padding: 0.5rem;
-  color: #141417;
-}
-.card__hero {
-  background-color: #fef4e2;
-  border-radius: 0.5rem 0.5rem 0 0;
-  padding: 1.5rem;
-  font-size: 0.875rem;
-}
-.card__hero .card__job-title {
-  margin: 5rem 0;
-  font-size: 2rem;
-  font-weight: 600;
-  padding-right: 2rem;
-}
-.card__hero-header {
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  color: #222;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 1rem;
-  font-weight: 700;
-}
-.card__footer {
-  display: flex;
-  justify-content: flex-start;
-  align-items: start;
   flex-direction: column;
-  flex-wrap: nowrap;
-  padding: 0.75rem;
-  row-gap: 1rem;
-  font-weight: 700;
-  font-size: 0.875rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-@media (min-width: 340px) {
-  .card__footer {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
-.card__job-summary {
+
+/* Hero with background image */
+.card__hero {
+  position: relative;
+  min-height: 20rem;
+  padding: 1.5rem;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  border-radius: 0.75rem 0.75rem 0 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.card__hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.05));
+  border-radius: inherit;
+}
+
+.card__hero * {
+  position: relative; /* Keeps text above overlay */
+  z-index: 1;
+}
+
+.card__hero-header {
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.card__hero .card__job-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Card Content */
+.card__footer,
+.margin-top-auto {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
 }
-.card__btn2 {
+
+/* Buttons */
+.card__btn2,
+.card__btn2_stroke {
   width: 100%;
-  font-weight: 400;
-  border: none;
-  display: block;
-  cursor: pointer;
-  text-align: center;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.5rem;
-  background-color: #141417;
-  color: #fff;
+  font-weight: 500;
+  padding: 0.65rem 1.25rem;
   font-size: 1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.card__btn2 {
+  background: linear-gradient(135deg, #141417, #333);
+  color: #fff;
+  border: none;
+}
+
+.card__btn2:hover:not(.disabled) {
+  background: linear-gradient(135deg, #000, #222);
+  transform: translateY(-2px);
+}
+
+.card__btn2.disabled {
+  background: #aaa;
+  cursor: not-allowed;
 }
 
 .card__btn2_stroke {
-  width: 100%;
-  font-weight: 400;
-  border: none;
-  display: block;
-  cursor: pointer;
-  text-align: center;
-  padding: 0.5rem 1.25rem;
-  border-radius: 0.5rem;
-  border: #030213 2px solid;
-  color: #000000;
-  font-size: 1rem;
-} 
+  background: transparent;
+  border: 2px solid #141417;
+  color: #141417;
+}
 
-@media (min-width: 340px) {
-  .card__btn {
-    width: max-content;
-  }
+.card__btn2_stroke:hover {
+  background: #141417;
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 
+
 /* ============================== Cards CSS ================================ */
+/* ============================== Hamburger CSS ================================ */
+
+.menuButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10%;
+  color: #090909;
+  width: 2.5em;       /* smaller */
+  height: 2.5em;      /* smaller */
+  border-radius: 0.4em;
+  background: #e8e8e8;
+  border: 1px solid #e8e8e8;
+  transition: all .3s;
+  box-shadow: 4px 4px 8px #c5c5c5,
+             -4px -4px 8px #ffffff;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  border: 1px solid white;
+}
+
+.menuButton:active {
+  color: #666;
+  box-shadow: inset 3px 3px 8px #c5c5c5,
+             inset -3px -3px 8px #ffffff;
+}
+
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  display: none;
+  visibility: hidden;
+}
+
+.menuButton span {
+  width: 22px;   /* smaller bar */
+  height: 3px;   /* thinner */
+  background: #131313;
+  border-radius: 100px;
+  transition: 0.3s ease;
+}
+
+/* Animation adjustments */
+input[type]:checked ~ span.top {
+  transform: translateY(200%) rotate(45deg);  /* less offset */
+  width: 26px;
+}
+
+input[type]:checked ~ span.bot {
+  transform: translateY(-200%) rotate(-45deg);
+  width: 26px;
+  box-shadow: 0 0 8px #495057;
+}
+
+input[type]:checked ~ span.mid {
+  transform: translateX(-15px);
+  opacity: 0;
+}
+
+
+
+/* ============================== Hamburger CSS ================================ */
+/* ============================== Cards CSS ================================ */
+
+
+
 
 
 /* ============================== Registration and login invalid input CSS ================================ */
@@ -1111,21 +1289,108 @@ a {
 
 
 
+/* Enhanced Homepage Styles */
+.hero-section {
+  min-height: 100vh;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-indicator {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+}
+
+.feature-card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1);
+}
+
+.stat-item h3 {
+  background: linear-gradient(135deg, #fff, #f8f9fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Animations */
+.animate__fadeInUp {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.animate__delay-1s {
+  animation-delay: 0.5s;
+}
+
+.animate__delay-2s {
+  animation-delay: 1s;
+}
+
+.animate__bounce {
+  animation: bounce 2s infinite;
+}
+
 /* Responsive Design */
 @media (min-width: 640px) {
   .hero-buttons {
     flex-direction: row;
     justify-content: start;
   }
-  
+
   .hero-title {
     font-size: 3rem;
   }
-  
+
   .form-row {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .cta-buttons {
     flex-direction: row;
     justify-content: center;
@@ -1136,15 +1401,15 @@ a {
   .hero-title {
     font-size: 3.75rem;
   }
-  
+
   .hero-subtitle {
     font-size: 1.5rem;
   }
-  
+
   .section-title {
     font-size: 2.25rem;
   }
-  
+
   .contact-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1166,5 +1431,9 @@ a {
 @media (min-width: 1024px) {
   .story-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-section {
+    min-height: 90vh;
   }
 }

@@ -36,6 +36,7 @@
                     <input type="checkbox" class="form-check-input" id="remember">
                     <label class="form-check-label" for="remember">Remember me</label>
                 </div>
+                <a href="?page=forgot_password" class="text-decoration-none">Forgot Password?</a>
             </div>
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>

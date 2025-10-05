@@ -1,79 +1,160 @@
-<?php
+<!-- Hero Section -->
+<section class="hero-section position-relative text-white overflow-hidden">
+<!-- Content -->
+    <div class="hero-content position-absolute top-50 start-50 translate-middle w-100 px-4 z-2 text-dark">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-8 col-lg-6 text-center text-md-start">
+                    <h1 class="hero-title display-4 fw-bold mb-4 animate__animated animate__fadeInUp">
+                        No Parking Space Near City?
+                    </h1>
+                    <p class="hero-subtitle lead mb-5 animate__animated animate__fadeInUp animate__delay-1s">
+                        Reserve your spot now at <strong>Centennial Parking</strong>,<br> Calbayog City.
+                        Safe, convenient, and affordable parking solutions.
+                    </p>
+                    <div class="hero-buttons d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="?page=about" class="btn btn-outline-dark btn-lg px-4 py-3">
+                            <i class="fas fa-info-circle me-2"></i>Learn More
+                        </a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 col-lg-6 text-center order-md-2">
+                    <img src="assets/images/logo.png" alt="Car Parking Rental Logo" class="hero-logo img-fluid animate__animated animate__fadeInUp animate__delay-1s" style="max-width: auto; height: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
 
-$parkingSpaces = [
-    [
-        'id' => '1',
-        'location' => 'Slot A1',
-        'hourlyRate' => 10,
-        'dailyRate' => 50,
-        'available' => true,
-        'image' => 'assets/images/parking1.jpg',
-        'features' => ['24/7 Security', 'CCTV Monitoring', 'Covered Parking']
-    ],
-    [
-        'id' => '2',
-        'location' => 'Slot A2',
-        'hourlyRate' => 10,
-        'dailyRate' => 50,
-        'available' => false,
-        'image' => 'assets/images/parking2.jpg',
-        'features' => ['24/7 Security', 'CCTV Monitoring', 'Covered Parking']
-    ]
-];
-?>
-
-<section class="position-relative text-white">
-<!-- Background Image -->
-  <img src="assets/images/centennial-parking.png" 
-       class="w-100 vh-100 object-fit-cover hero-background-image" 
-       alt="Centennial Parking">
-
-  <!-- Black Overlay -->
-  <div class="position-absolute top-0 start-0 w-100 h-100 bg-black" style="opacity: 0.6;"></div>
-
-  <!-- Content on top -->
-  <div class="w-100 position-absolute top-50 start-50 translate-middle text-white container">
-    <h1 class="display-3 fw-bold">No Parking Space Near City?</h1>
-    <p class="lead">Reserve your spot now at Centennial Parking, Calbayog City. Safe, convenient, and affordable.</p>
-    <a href="#" class="btn btn-primary btn-md">Book Parking Now</a>
-    <a href="?page=about" class="btn btn-outline-light btn-md">Learn More</a>
-  </div>
-</section>
-
-<!-- Available Parking Space Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-
-    <?php include 'includes/partials/card.php'; ?>
-
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator position-absolute bottom-0 start-50 translate-middle-x mb-4 animate__animated animate__bounce">
+        <i class="fas fa-chevron-down text-white fs-4"></i>
     </div>
 </section>
 
+<!-- Available Parking Spaces Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title display-5 fw-bold mb-3">Available Parking Spaces</h2>
+                <p class="section-subtitle lead text-muted">
+                    Choose from our premium parking locations in Calbayog City
+                </p>
+            </div>
+        </div>
+        <?php $limit = 4; ?>
+        <?php include 'includes/partials/card.php'; ?>
+        <div class="text-center mt-4">
+            <a href="?page=slots" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-list me-2"></i>View All Spaces
+            </a>
+        </div>
+    </div>
+</section>
 
-<!-- Featured section -->
+<!-- Features Section -->
 <section class="py-5 bg-white">
-    <div class="container text-center">
-        <h2 class="mb-5">Why Choose Car Parking Rental, Calbayog City?</h2>
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title display-5 fw-bold mb-3">Why Choose Us?</h2>
+                <p class="section-subtitle lead text-muted">
+                    Experience the best parking service in Calbayog City
+                </p>
+            </div>
+        </div>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="p-4">
-                    <i class="fas fa-map-marker-alt fa-2x mb-3 text-primary"></i>
-                    <h5>Central Location</h5>
-                    <p>Easily accessible within Calbayog City.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">Prime Location</h5>
+                        <p class="card-text text-muted">
+                            Strategically located in the heart of Calbayog City for maximum convenience and accessibility.
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="p-4">
-                    <i class="fas fa-clock fa-2x mb-3 text-primary"></i>
-                    <h5>24/7 Availability</h5>
-                    <p>Book and access your parking space anytime.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-shield-alt fa-2x"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">Secure & Safe</h5>
+                        <p class="card-text text-muted">
+                            24/7 security surveillance with trained personnel ensuring your vehicle's safety at all times.
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="p-4">
-                    <i class="fas fa-car fa-2x mb-3 text-primary"></i>
-                    <h5>Safe & Secure</h5>
-                    <p>Security cameras and guards ensure your vehicle is protected.</p>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card card h-100 border-0 shadow-sm hover-lift">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-3">24/7 Access</h5>
+                        <p class="card-text text-muted">
+                            Round-the-clock access to your parking space with flexible booking options.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold mb-2">500+</h3>
+                    <p class="mb-0">Happy Customers</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold mb-2">50+</h3>
+                    <p class="mb-0">Parking Spaces</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold mb-2">24/7</h3>
+                    <p class="mb-0">Customer Support</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <h3 class="display-4 fw-bold mb-2">5★</h3>
+                    <p class="mb-0">Average Rating</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-5 fw-bold mb-4">Ready to Park Smart?</h2>
+                <p class="lead text-muted mb-4">
+                    Join thousands of satisfied customers who trust Centennial Parking for their vehicle needs.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="?page=register" class="btn btn-primary btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="?page=contact" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="fas fa-phone me-2"></i>Contact Us
+                    </a>
                 </div>
             </div>
         </div>

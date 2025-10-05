@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', function () {
     handlePhoneValidation();
 });
 
+document.getElementById("check").addEventListener("change", function() {
+    let nav = document.getElementById("navbarNav");
+    let bsCollapse = new bootstrap.Collapse(nav, { toggle: false });
+    if (this.checked) {
+        bsCollapse.show();
+    } else {
+        bsCollapse.hide();
+    }
+});
+
+// =============================
+// Booking & Details Handlers
+// =============================
+function handleBooking(spaceId, isLoggedIn) {
+    if (isLoggedIn) {
+        // User logged in → redirect to booking page
+        window.location.href = "index.php?page=booking&id=" + spaceId;
+    } else {
+        // User not logged in → redirect to login page
+        window.location.href = "index.php?page=login&status=error&message=Please login first.";
+    }
+}
+
+function handleViewDetails(spaceId, isLoggedIn) {
+    if (isLoggedIn) {
+        // User logged in → redirect to details page
+        window.location.href = "index.php?page=details&id=" + spaceId;
+    } else {
+        // User not logged in → redirect to login page
+        window.location.href = "index.php?page=login&status=error&message=Please login first.";
+    }
+}
+
 // =============================
 // Navigation functionality
 // =============================

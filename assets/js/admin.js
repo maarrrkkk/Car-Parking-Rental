@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
+
 // Revenue Chart
 function initializeCharts() {
     // Revenue Chart

@@ -40,15 +40,15 @@ try {
 }
 
 // ==========================
-// Fetch Payments (with Booking + User info)
+// Fetch Payments (from bookings table)
 // ==========================
 try {
     $stmtPayments = $pdo->query("
-        SELECT p.*, b.start_time, b.end_time, u.firstname, u.lastname
-        FROM payments p
-        JOIN bookings b ON p.booking_id = b.id
+        SELECT b.*, u.firstname, u.lastname
+        FROM bookings b
         JOIN users u ON b.user_id = u.id
-        ORDER BY p.created_at DESC
+        WHERE b.status = 'completed'
+        ORDER BY b.paid_at DESC
     ");
     $payments = $stmtPayments->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
