@@ -63,9 +63,57 @@ try {
 
     $resetLink = "http://localhost" . $baseUrl . "/index.php?page=reset_password&token=" . $resetToken;
 
-    $mail->isHTML(false);
+    $mail->isHTML(true);
     $mail->Subject = 'Password Reset - Car Parking Rental';
-    $mail->Body = "Hello " . $user['firstname'] . ",\n\nYou requested a password reset for your Car Parking Rental account.\n\nClick the link below to reset your password:\n\n" . $resetLink . "\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nCar Parking Rental Team";
+
+    // HTML email with styled button
+    $mail->Body = "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Password Reset</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 5px 5px; }
+            .button { display: inline-block; background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; }
+            .button:hover { background-color: #218838; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h2>Password Reset Request</h2>
+            </div>
+            <div class='content'>
+                <p>Hello " . htmlspecialchars($user['firstname']) . ",</p>
+
+                <p>You requested a password reset for your Car Parking Rental account.</p>
+
+                <p>Please click the button below to reset your password:</p>
+
+                <p style='text-align: center; margin: 30px 0;'>
+                    <a href='" . htmlspecialchars($resetLink) . "' class='button'>Reset My Password</a>
+                </p>
+
+                <p><strong>Important:</strong> This link will expire in 1 hour for security reasons.</p>
+
+                <p>If you didn't request this password reset, please ignore this email. Your account will remain secure.</p>
+
+                <p>Best regards,<br>Car Parking Rental Team</p>
+            </div>
+            <div class='footer'>
+                <p>This is an automated message. Please do not reply to this email.</p>
+            </div>
+        </div>
+    </body>
+    </html>";
+
+    // Plain text alternative for email clients that don't support HTML
+    $mail->AltBody = "Hello " . $user['firstname'] . ",\n\nYou requested a password reset for your Car Parking Rental account.\n\nClick the link below to reset your password:\n\n" . $resetLink . "\n\nThis link will expire in 1 hour.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nCar Parking Rental Team";
 
     $mail->send();
 

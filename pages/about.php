@@ -30,7 +30,7 @@ $teamMembers = [
 <section class="position-relative bg-dark text-white py-5">
   <!-- Background image -->
   <div class="position-absolute top-0 start-0 w-100 h-100">
-    <img src="assets/images/about-bg.jpg" 
+    <img src="assets/images/about-bg.png" 
          class="w-100 h-100 object-fit-cover" 
          alt="About ParkEase">
     <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0.5;"></div>
