@@ -78,6 +78,88 @@ A web-based car parking rental system built with PHP, MySQL, and Bootstrap.
    - The script will create all necessary tables and insert default data
    - Default admin login: `admin@yourdomain.com` / `Qwerty12345`
 
+## Collaborator Setup Guide
+
+If you're working with a team or someone else wants to contribute to this project, here's what they need to do after cloning the repository:
+
+### Step 1: Clone and Initial Setup
+```bash
+git clone https://github.com/yourusername/Car-Parking-Rental.git
+cd Car-Parking-Rental
+```
+
+### Step 2: Set Up Environment Variables
+```bash
+# Copy the template file
+cp .env.example .env
+
+# Edit the .env file with your local settings
+nano .env  # or use any text editor
+```
+
+**Configure these settings in `.env`:**
+```env
+# Database settings (your local MySQL)
+DB_HOST=localhost
+DB_NAME=car_parking_rental_db
+DB_USER=root  # your MySQL username
+DB_PASS=      # your MySQL password
+
+# Admin defaults (can keep as-is)
+ADMIN_FIRSTNAME=Super
+ADMIN_LASTNAME=Admin
+ADMIN_EMAIL=admin@carparking.com
+ADMIN_PHONE=09123456789
+ADMIN_PASSWORD=Qwerty12345
+
+# Email settings (optional for development)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=yourgmail@gmail.com
+SMTP_PASSWORD=your_app_password
+SMTP_ENCRYPTION=tls
+```
+
+### Step 3: Install Dependencies
+```bash
+composer install
+```
+
+### Step 4: Set Up Web Server
+
+**Option A: XAMPP (recommended for Windows):**
+- Copy project to `C:\xampp\htdocs\Car-Parking-Rental`
+- Start Apache and MySQL in XAMPP Control Panel
+
+**Option B: Built-in PHP server (for development):**
+```bash
+php -S localhost:8000
+```
+Access at: `http://localhost:8000`
+
+### Step 5: Database Initialization
+- Open browser and go to: `http://localhost/Car-Parking-Rental/setup.php`
+- The setup script automatically creates database, tables, and default data
+
+### Step 6: Access the Application
+- **Main site:** `http://localhost/Car-Parking-Rental/index.php`
+- **Admin login:**
+ - Email: `admin@carparking.com`
+ - Password: `Qwerty12345`
+
+### What Files You Get vs. Need to Create
+
+**Files from Git:**
+- ✅ All PHP code and assets
+- ✅ `composer.json` and `composer.lock`
+- ✅ `README.md` and documentation
+- ✅ `.env.example` template
+
+**Files You Create:**
+- ❌ `.env` (copy from `.env.example`)
+- ❌ `vendor/` (created by `composer install`)
+- ❌ Database (created by setup.php)
+
 ## Email Configuration (Gmail)
 
 ### Getting Your Gmail App Password
@@ -157,6 +239,52 @@ SMTP_PASSWORD=your_16_character_app_password
 ### File Upload Issues
 - Check that the `assets/images/` directories are writable
 - Ensure proper file permissions (755 for directories, 644 for files)
+
+### .env File Parsing Error
+If you encounter an error like "syntax error, unexpected '(' in .env on line 13":
+
+1. **Delete the corrupted .env file:**
+   ```bash
+   rm .env
+   ```
+
+2. **Recreate .env from scratch:**
+   ```bash
+   # Copy from template
+   cp .env.example .env
+
+   # Or create manually with these commands:
+   echo DB_HOST=localhost > .env
+   echo DB_NAME=car_parking_rental_db >> .env
+   echo DB_USER=root >> .env
+   echo DB_PASS= >> .env
+   echo. >> .env
+   echo # admin user default credentials >> .env
+   echo ADMIN_FIRSTNAME=Super >> .env
+   echo ADMIN_LASTNAME=Admin >> .env
+   echo ADMIN_EMAIL=admin@carparking.com >> .env
+   echo ADMIN_PHONE=09123456789 >> .env
+   echo ADMIN_PASSWORD=Qwerty12345 >> .env
+   echo. >> .env
+   echo # Email Configuration >> .env
+   echo SMTP_HOST=smtp.gmail.com >> .env
+   echo SMTP_PORT=587 >> .env
+   echo SMTP_USERNAME=yourgmail@gmail.com >> .env
+   echo SMTP_PASSWORD=your_app_password >> .env
+   echo SMTP_ENCRYPTION=tls >> .env
+   ```
+
+3. **Edit with your actual credentials:**
+   ```bash
+   nano .env  # or use any text editor
+   ```
+
+4. **Test the configuration:**
+   ```bash
+   php -r "$env = parse_ini_file('.env'); echo 'Config loaded successfully';"
+   ```
+
+**Cause:** The .env file may contain invisible characters, encoding issues, or formatting problems that prevent PHP's `parse_ini_file()` function from reading it correctly.
 
 ## Security Notes
 
