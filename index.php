@@ -1,16 +1,16 @@
 <?php
+
+// Always load database setup on site start
+require_once __DIR__ . '/config/database.php';
+
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
-$validPages = ['home', 'about', 'contact', 'login'];
+$validPages = ['home', 'about', 'contact', 'login', 'register', 'verify_email', 'forgot_password', 'reset_password', 'slots', 'slot_details', 'booking', 'profile'];
 if (!in_array($page, $validPages)) {
     $page = 'home';
 }
-
-// If login page, load it directly and stop
-if ($page === 'login') {
-    include 'pages/auth/user-access.php';
-    exit; // 👈 Prevents navbar & rest of layout from rendering
-}
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,79 +18,73 @@ if ($page === 'login') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Parking Rental</title>
+    <link rel="shortcut icon" href="assets/images/logo.png" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="assets/css/main.css"> <!-- keep only overrides -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 
 <body>
-    <!-- Bootstrap Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="?page=home">Car Parking Rental</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a href="?page=home" class="nav-link <?= $page==='home'?'active':'' ?>">Home</a></li>
-                <li class="nav-item"><a href="?page=about" class="nav-link <?= $page==='about'?'active':'' ?>">About</a></li>
-                <li class="nav-item"><a href="?page=contact" class="nav-link <?= $page==='contact'?'active':'' ?>">Contact</a></li>
-                <li class="nav-item"><a href="?page=login" class="nav-link">Login</a></li>
-            </ul>
-            </div>
-        </div>
-    </nav>
+
+    <?php include 'includes/partials/client_nav.php'; ?>
+
 
     <!-- Main Content -->
     <main class="main-content">
         <?php
         switch ($page) {
             case 'home':
-                include 'pages/client/home.php';
+                include 'pages/home.php';
                 break;
             case 'about':
-                include 'pages/client/about.php';
+                include 'pages/about.php';
                 break;
             case 'contact':
-                include 'pages/client/contact.php';
+                include 'pages/contact.php';
+                break;
+            case 'login':
+                include 'pages/auth/login.php';
+                break;
+            case 'register':
+                include 'pages/auth/register.php';
+                break;
+            case 'verify_email':
+                include 'pages/auth/verify_email.php';
+                break;
+            case 'forgot_password':
+                include 'pages/auth/forgot_password.php';
+                break;
+            case 'reset_password':
+                include 'pages/auth/reset_password.php';
+                break;
+            case 'slots':
+                include 'pages/client/slots.php';
+                break;
+            case 'slot_details':
+                include 'pages/client/slot_details.php';
+                break;
+            case 'booking':
+                include 'pages/client/booking.php';
+                break;
+            case 'profile':
+                include 'pages/client/profile.php';
                 break;
             default:
-                include 'pages/client/home.php';
+                include 'pages/home.php';
         }
         ?>
     </main>
-    <!-- Footer -->
-    <footer class="bg-dark text-light text-center text-lg-start mt-5">
-        <div class="container p-4">
-            <div class="row">
-                <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-                    <h5 class="text-uppercase fw-bold">Car Parking Rental</h5>
-                    <p>
-                        Find and rent parking spaces easily. Safe, convenient, and affordable solutions for your parking needs.
-                    </p>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">Links</h5>
-                    <ul class="list-unstyled mb-0">
-                        <li><a href="?page=home" class="text-light">Home</a></li>
-                        <li><a href="?page=about" class="text-light">About</a></li>
-                        <li><a href="?page=contact" class="text-light">Contact</a></li>
-                        <li><a href="?page=login" class="text-light">Login</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-                    <h5 class="text-uppercase">Contact</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-envelope me-2"></i> info@carparkingrental.com</li>
-                        <li><i class="fas fa-phone me-2"></i> +1 234 567 890</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
+
+    <?php include 'includes/partials/client_footer.php'; ?>
+
     <script src="assets/js/main.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
- 
+
+
+
 </html>
+

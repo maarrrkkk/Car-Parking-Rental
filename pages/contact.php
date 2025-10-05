@@ -3,20 +3,20 @@ $contactInfo = [
     [
         'icon' => 'fas fa-phone',
         'title' => 'Phone',
-        'info' => '+1 (555) 123-4567',
+        'info' => '+63 917 123 4567',
         'description' => 'Call us for immediate assistance'
     ],
     [
         'icon' => 'fas fa-envelope',
         'title' => 'Email',
-        'info' => 'support@parkease.com',
+        'info' => 'support@carparkingcentennial.com',
         'description' => 'Send us an email anytime'
     ],
     [
         'icon' => 'fas fa-map-marker-alt',
         'title' => 'Address',
-        'info' => '123 Business Ave, Suite 100',
-        'description' => 'Downtown Business District'
+        'info' => 'Centennial City, Philippines',
+        'description' => 'Local parking services'
     ],
     [
         'icon' => 'fas fa-clock',
@@ -32,10 +32,6 @@ $faqItems = [
         'answer' => 'You can cancel your reservation up to 1 hour before your scheduled time through our app or website.'
     ],
     [
-        'question' => 'What payment methods do you accept?',
-        'answer' => 'We accept all major credit cards, PayPal, and mobile payment services like Apple Pay and Google Pay.'
-    ],
-    [
         'question' => 'Is my vehicle insured while parked?',
         'answer' => 'While we provide secure facilities, we recommend checking with your auto insurance provider for coverage details.'
     ],
@@ -45,22 +41,7 @@ $faqItems = [
     ]
 ];
 
-// Handle form submission
-$messageStatus = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_contact'])) {
-    $name = htmlspecialchars($_POST['name'] ?? '');
-    $email = htmlspecialchars($_POST['email'] ?? '');
-    $subject = htmlspecialchars($_POST['subject'] ?? '');
-    $message = htmlspecialchars($_POST['message'] ?? '');
-    
-    if ($name && $email && $subject && $message) {
-        // Here you would typically send an email or save to database
-        // For demo purposes, we'll just show a success message
-        $messageStatus = 'success';
-    } else {
-        $messageStatus = 'error';
-    }
-}
+// No longer needed, using AJAX
 ?>
 
 <!-- Header -->
@@ -106,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_contact'])) {
                     <div class="card-content">
                         <div class="emergency-contact">
                             <i class="fas fa-phone emergency-icon"></i>
-                            <span class="emergency-number">+1 (555) 911-PARK</span>
+                            <span class="emergency-number">+63 917 911 PARK</span>
                         </div>
                         <p class="emergency-description">Available 24/7 for parking emergencies</p>
                     </div>
@@ -121,19 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_contact'])) {
                         <p class="card-description">Fill out the form below and we'll get back to you within 24 hours</p>
                     </div>
                     <div class="card-content">
-                        <?php if ($messageStatus === 'success'): ?>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            Thank you for your message! We'll get back to you soon.
-                        </div>
-                        <?php elseif ($messageStatus === 'error'): ?>
-                        <div class="alert alert-error">
-                            <i class="fas fa-exclamation-circle"></i>
-                            Please fill in all fields.
-                        </div>
-                        <?php endif; ?>
-
-                        <form method="POST" class="contact-form">
+                        <form method="POST" class="contact-form" id="contactForm">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="name" class="form-label">Full Name</label>
@@ -190,9 +159,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_contact'])) {
             <h2 class="cta-title">Still Have Questions?</h2>
             <p class="cta-subtitle">Don't hesitate to reach out. Our customer support team is standing by to help.</p>
             <div class="cta-buttons">
-                <button class="btn btn-primary btn-lg">Call Now: +1 (555) 123-4567</button>
+                <button class="btn btn-primary btn-lg">Call Now: +63 917 123 4567</button>
                 <button class="btn btn-outline btn-lg">Live Chat Support</button>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+
+    // Remove any existing alerts
+    const existingAlert = this.querySelector('.alert');
+    if (existingAlert) existingAlert.remove();
+
+    fetch('api/contact.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = data.success ? 'alert alert-success' : 'alert alert-error';
+        alertDiv.innerHTML = `<i class="fas fa-${data.success ? 'check-circle' : 'exclamation-circle'}"></i> ${data.message}`;
+        this.insertBefore(alertDiv, this.firstElementChild);
+
+        if (data.success) {
+            this.reset();
+        }
+    })
+    .catch(error => {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-error';
+        alertDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred. Please try again.';
+        this.insertBefore(alertDiv, this.firstElementChild);
+    })
+    .finally(() => {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    });
+});
+</script>
