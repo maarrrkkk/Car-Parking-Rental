@@ -1,55 +1,44 @@
 <!-- Hero Section -->
-<section class="hero-section position-relative text-white overflow-hidden">
-<!-- Content -->
-    <div class="hero-content position-absolute top-50 start-50 translate-middle w-100 px-4 z-2 text-dark">
+<section class="hero-section position-relative">
+
+    <!-- Optional Background Image -->
+    <div class="hero-background">
+        <img src="assets/images/parking-bg.jpg" class="hero-image" alt="">
+    </div>
+
+    <div class="hero-overlay"></div>
+
+    <!-- Content Layer -->
+    <div class="hero-content-wrapper position-absolute z-3 top-50 start-50 translate-middle w-100 px-4">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-12 col-md-8 col-lg-6 text-center text-md-start">
-                    <h1 class="hero-title display-4 fw-bold mb-4 animate__animated animate__fadeInUp">
+            <div class="row">
+
+                <!-- Text -->
+                <div class="col-12 col-md-8 col-lg-6 text-center text-white text-md-start">
+                    <h1 class="hero-title animate__animated animate__fadeInUp">
                         No Parking Space Near City?
                     </h1>
-                    <p class="hero-subtitle lead mb-5 animate__animated animate__fadeInUp animate__delay-1s">
-                        Reserve your spot now at <strong>Centennial Parking</strong>,<br> Calbayog City.
+
+                    <p class="hero-subtitle mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        Reserve your spot now at <strong>Centennial Parking</strong>, Calbayog City.  
                         Safe, convenient, and affordable parking solutions.
                     </p>
-                    <div class="hero-buttons d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="?page=about" class="btn btn-outline-dark btn-lg px-4 py-3">
-                            <i class="fas fa-info-circle me-2"></i>Learn More
+
+                    <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                        <a href="?page=about" class="btn btn-light text-dark fw-semibold">
+                            <i class="fas fa-info-circle me-2"></i> Learn More
                         </a>
                     </div>
-                </div>
-                <div class="col-12 col-md-4 col-lg-6 text-center order-md-2">
-                    <img src="assets/images/logo.png" alt="Car Parking Rental Logo" class="hero-logo img-fluid animate__animated animate__fadeInUp animate__delay-1s" style="max-width: auto; height: auto;">
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Scroll Indicator -->
-    <div class="scroll-indicator position-absolute bottom-0 start-50 translate-middle-x mb-4 animate__animated animate__bounce">
-        <i class="fas fa-chevron-down text-white fs-4"></i>
+    <div class="scroll-indicator position-absolute bottom-0 start-50 z-3 translate-middle-x mb-4">
+        <i class="fas fa-chevron-down fs-3"></i>
     </div>
-</section>
 
-<!-- Available Parking Spaces Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-lg-8 text-center">
-                <h2 class="section-title display-5 fw-bold mb-3">Available Parking Spaces</h2>
-                <p class="section-subtitle lead text-muted">
-                    Choose from our premium parking locations in Calbayog City
-                </p>
-            </div>
-        </div>
-        <?php $limit = 4; ?>
-        <?php include 'includes/partials/card.php'; ?>
-        <div class="text-center mt-4">
-            <a href="?page=slots" class="btn btn-outline-primary btn-lg">
-                <i class="fas fa-list me-2"></i>View All Spaces
-            </a>
-        </div>
-    </div>
 </section>
 
 <!-- Features Section -->
@@ -107,8 +96,29 @@
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
+<!-- Available Parking Spaces Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="section-title display-5 fw-bold mb-3">Available Parking Spaces</h2>
+                <p class="section-subtitle lead text-muted">
+                    Choose from our premium parking locations in Calbayog City
+                </p>
+            </div>
+        </div>
+        <?php $limit = 4; ?>
+        <?php include 'includes/partials/card.php'; ?>
+        <div class="text-center mt-4">
+            <a href="?page=slots" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-list me-2"></i>View All Spaces
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section
+<section class="py-5 text-white bg-primary bg-opacity-70">
     <div class="container">
         <div class="row text-center g-4">
             <div class="col-md-3">
@@ -137,7 +147,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- CTA Section -->
 <section class="py-5 bg-light">

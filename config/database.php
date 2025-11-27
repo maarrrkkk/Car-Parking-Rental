@@ -22,6 +22,11 @@ $username = $env['DB_USER'] ?? "root";
 $password = $env['DB_PASS'] ?? "";
 $port = $env['DB_PORT'] ?? "3306";
 
+// PayPal configuration
+$paypalClientId = $env['PAYPAL_CLIENT_ID'] ?? "";
+$paypalClientSecret = $env['PAYPAL_CLIENT_SECRET'] ?? "";
+$paypalEnvironment = $env['PAYPAL_ENVIRONMENT'] ?? "sandbox";
+
 try {
     // Try to connect directly to the DB
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);

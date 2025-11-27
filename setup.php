@@ -104,6 +104,7 @@ try {
             amount DECIMAL(10,2) NOT NULL,
             receipt VARCHAR(255) NULL,
             paid_at TIMESTAMP NULL,
+            payment_method ENUM('paypal','gcash') DEFAULT 'paypal',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE
@@ -117,6 +118,7 @@ try {
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0.00");
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receipt VARCHAR(255) NULL");
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL");
+    $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_method ENUM('paypal','gcash') DEFAULT 'paypal'");
 
     // Update status ENUM to include 'pending'
     $pdo->exec("ALTER TABLE bookings MODIFY COLUMN status ENUM('pending','active','completed','cancelled') DEFAULT 'pending'");
