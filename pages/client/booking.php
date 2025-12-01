@@ -7,6 +7,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Load PayPal client ID for SDK
+$paypalClientId = $env['PAYPAL_CLIENT_ID'] ?? "";
+
 // Get slot ID from URL
 $slotId = $_GET['id'] ?? null;
 if (!$slotId) {
@@ -84,11 +87,24 @@ $defaultType = $availableTypes[0] ?? 'daily';
 
             <!-- Hourly Fields -->
             <div id="hourlyFields" class="form-group hidden">
-                <label>Start Time</label>
-                <input type="datetime-local" id="start_time_hourly" name="start_time_hourly">
+                <label>Booking Date</label>
+                <input type="date" id="hourly_date" name="hourly_date" min="">
 
-                <label>End Time</label>
-                <input type="datetime-local" id="end_time_hourly" name="end_time_hourly">
+                <div class="time-selection-row">
+                    <div class="time-field">
+                        <label>Start Time</label>
+                        <select id="start_time_hourly" name="start_time_hourly">
+                            <option value="">Select Start Time</option>
+                        </select>
+                    </div>
+                    <div class="time-field">
+                        <label>End Time</label>
+                        <select id="end_time_hourly" name="end_time_hourly">
+                            <option value="">Select End Time</option>
+                        </select>
+                    </div>
+                </div>
+                <p id="hourlyDurationInfo" class="info"></p>
             </div>
 
             <!-- Daily Fields -->
@@ -147,6 +163,83 @@ $defaultType = $availableTypes[0] ?? 'daily';
 
 
 <script>
+    // Format number with thousand separators and 2 decimal places
+    function formatCurrency(amount) {
+        return amount.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // Time options for hourly booking (6 AM to 10 PM)
+    const timeOptions = [];
+    for (let hour = 6; hour <= 22; hour++) {
+        const hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const timeValue = hour.toString().padStart(2, '0') + ':00';
+        const timeLabel = hour12 + ':00 ' + ampm;
+        timeOptions.push({ value: timeValue, label: timeLabel, hour: hour });
+    }
+
+    // Populate start time dropdown
+    function populateStartTimeOptions() {
+        const startTimeSelect = document.getElementById('start_time_hourly');
+        startTimeSelect.innerHTML = '<option value="">Select Start Time</option>';
+        
+        timeOptions.forEach(function(time) {
+            // Exclude the last time slot as start time (need at least 1 hour)
+            if (time.hour < 22) {
+                const option = document.createElement('option');
+                option.value = time.value;
+                option.textContent = time.label;
+                startTimeSelect.appendChild(option);
+            }
+        });
+    }
+
+    // Populate end time dropdown based on selected start time
+    function populateEndTimeOptions() {
+        const startTimeSelect = document.getElementById('start_time_hourly');
+        const endTimeSelect = document.getElementById('end_time_hourly');
+        const startValue = startTimeSelect.value;
+        
+        endTimeSelect.innerHTML = '<option value="">Select End Time</option>';
+        
+        if (!startValue) {
+            endTimeSelect.disabled = true;
+            return;
+        }
+        
+        endTimeSelect.disabled = false;
+        const startHour = parseInt(startValue.split(':')[0]);
+        
+        timeOptions.forEach(function(time) {
+            // Only show times after the selected start time
+            if (time.hour > startHour) {
+                const option = document.createElement('option');
+                option.value = time.value;
+                option.textContent = time.label;
+                endTimeSelect.appendChild(option);
+            }
+        });
+    }
+
+    // Update duration info display
+    function updateHourlyDurationInfo() {
+        const startTime = document.getElementById('start_time_hourly').value;
+        const endTime = document.getElementById('end_time_hourly').value;
+        const infoElement = document.getElementById('hourlyDurationInfo');
+        
+        if (startTime && endTime) {
+            const startHour = parseInt(startTime.split(':')[0]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            const hours = endHour - startHour;
+            infoElement.textContent = 'Duration: ' + hours + ' hour' + (hours > 1 ? 's' : '');
+        } else {
+            infoElement.textContent = '';
+        }
+    }
+
     // Toggle form fields based on duration type
     function toggleFields() {
         const durationType = document.getElementById('duration_type').value;
@@ -155,11 +248,21 @@ $defaultType = $availableTypes[0] ?? 'daily';
         document.getElementById('monthlyFields').style.display = durationType === 'monthly' ? 'block' : 'none';
 
         // Set required attributes
+        document.getElementById('hourly_date').required = durationType === 'hourly';
         document.getElementById('start_time_hourly').required = durationType === 'hourly';
         document.getElementById('end_time_hourly').required = durationType === 'hourly';
         document.getElementById('start_date').required = durationType === 'daily';
         document.getElementById('end_date').required = durationType === 'daily';
         document.getElementById('start_date_monthly').required = durationType === 'monthly';
+
+        // Initialize hourly time dropdowns when hourly is selected
+        if (durationType === 'hourly') {
+            populateStartTimeOptions();
+            populateEndTimeOptions();
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('hourly_date').min = today;
+        }
 
         calculateCost();
     }
@@ -174,15 +277,17 @@ $defaultType = $availableTypes[0] ?? 'daily';
         let actualDurationType = durationType;
 
         if (durationType === 'hourly') {
+            const hourlyDate = document.getElementById('hourly_date').value;
             const startTime = document.getElementById('start_time_hourly').value;
             const endTime = document.getElementById('end_time_hourly').value;
-            if (startTime && endTime) {
-                const start = new Date(startTime);
-                const end = new Date(endTime);
-                if (start < end) {
-                    hours = (end - start) / (1000 * 60 * 60);
-                }
+            
+            if (hourlyDate && startTime && endTime) {
+                const startHour = parseInt(startTime.split(':')[0]);
+                const endHour = parseInt(endTime.split(':')[0]);
+                hours = endHour - startHour;
             }
+            
+            updateHourlyDurationInfo();
         } else if (durationType === 'daily') {
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
@@ -212,16 +317,6 @@ $defaultType = $availableTypes[0] ?? 'daily';
         if ((durationType === 'hourly' && hours > 0) ||
             (durationType === 'daily' && days > 0) ||
             (durationType === 'monthly' && months > 0)) {
-
-            // For hourly, ensure valid time range
-            if (durationType === 'hourly') {
-                const start = new Date(document.getElementById('start_time_hourly').value);
-                const end = new Date(document.getElementById('end_time_hourly').value);
-                if (start >= end) {
-                    document.getElementById('estimatedCost').textContent = 'Invalid time range';
-                    return;
-                }
-            }
 
             let baseCost = 0;
             let vehicleRate = 0;
@@ -257,7 +352,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
             }
 
             const totalCost = baseCost + vehicleRate;
-            document.getElementById('estimatedCost').textContent = '₱' + totalCost.toFixed(2);
+            document.getElementById('estimatedCost').textContent = '₱' + formatCurrency(totalCost);
 
             // Update duration type display if switched
             if (actualDurationType !== durationType) {
@@ -277,7 +372,13 @@ $defaultType = $availableTypes[0] ?? 'daily';
         toggleFields();
         calculateCost();
     });
-    document.getElementById('start_time_hourly').addEventListener('change', calculateCost);
+    document.getElementById('hourly_date').addEventListener('change', calculateCost);
+    document.getElementById('start_time_hourly').addEventListener('change', function() {
+        populateEndTimeOptions();
+        // Reset end time when start time changes
+        document.getElementById('end_time_hourly').value = '';
+        calculateCost();
+    });
     document.getElementById('end_time_hourly').addEventListener('change', calculateCost);
     document.getElementById('start_date').addEventListener('change', calculateCost);
     document.getElementById('end_date').addEventListener('change', calculateCost);
@@ -293,10 +394,18 @@ $defaultType = $availableTypes[0] ?? 'daily';
         let isValid = true;
 
         if (durationType === 'hourly') {
-            const start = document.getElementById('start_time_hourly').value;
-            const end = document.getElementById('end_time_hourly').value;
-            if (!start || !end || new Date(start) >= new Date(end)) {
-                alert('Please select valid start and end times for hourly booking.');
+            const hourlyDate = document.getElementById('hourly_date').value;
+            const startTime = document.getElementById('start_time_hourly').value;
+            const endTime = document.getElementById('end_time_hourly').value;
+            
+            if (!hourlyDate) {
+                alert('Please select a booking date for hourly booking.');
+                isValid = false;
+            } else if (!startTime) {
+                alert('Please select a start time for hourly booking.');
+                isValid = false;
+            } else if (!endTime) {
+                alert('Please select an end time for hourly booking.');
                 isValid = false;
             }
         } else if (durationType === 'daily') {
@@ -327,8 +436,11 @@ $defaultType = $availableTypes[0] ?? 'daily';
         // Generate start_time and end_time based on inputs
         let startTime, endTime;
         if (durationTypeVal === 'hourly') {
-            startTime = document.getElementById('start_time_hourly').value.replace('T', ' ');
-            endTime = document.getElementById('end_time_hourly').value.replace('T', ' ');
+            const hourlyDate = document.getElementById('hourly_date').value;
+            const startTimeVal = document.getElementById('start_time_hourly').value;
+            const endTimeVal = document.getElementById('end_time_hourly').value;
+            startTime = hourlyDate + ' ' + startTimeVal + ':00';
+            endTime = hourlyDate + ' ' + endTimeVal + ':00';
         } else if (durationTypeVal === 'daily') {
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;

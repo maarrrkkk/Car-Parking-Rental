@@ -9,6 +9,10 @@ require_once "../../includes/auth/fetch_data.php";
         <h1 class="h2">Users Overview</h1>
     </div>
 
+    <?php
+    // Filter out admin users for statistics
+    $regularUsers = array_filter($users, fn($u) => $u['role'] !== 'admin');
+    ?>
     <!-- User Stats Cards -->
     <div class="row mb-4">
         <!-- Total Users -->
@@ -21,7 +25,7 @@ require_once "../../includes/auth/fetch_data.php";
                                 Total Users
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <?= count($users) ?>
+                                <?= count($regularUsers) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -42,7 +46,7 @@ require_once "../../includes/auth/fetch_data.php";
                                 Active Users
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <?= count(array_filter($users, fn($u) => $u['status'] === 'Active')) ?>
+                                <?= count(array_filter($regularUsers, fn($u) => $u['status'] === 'Active')) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -63,7 +67,7 @@ require_once "../../includes/auth/fetch_data.php";
                                 Suspended Users
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                <?= count(array_filter($users, fn($u) => $u['status'] === 'Suspended')) ?>
+                                <?= count(array_filter($regularUsers, fn($u) => $u['status'] === 'Suspended')) ?>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -84,7 +88,7 @@ require_once "../../includes/auth/fetch_data.php";
                                 New This Month
                             </div>
                             <?php
-                            $thisMonth = array_filter($users, fn($u) => isset($u['member_since']) && date('Y-m', strtotime($u['member_since'])) === date('Y-m'));
+                            $thisMonth = array_filter($regularUsers, fn($u) => isset($u['member_since']) && date('Y-m', strtotime($u['member_since'])) === date('Y-m'));
                             ?>
                             <div class="h5 mb-0 font-weight-bold text-gray-800"><?= count($thisMonth) ?></div>
                         </div>
@@ -122,6 +126,7 @@ require_once "../../includes/auth/fetch_data.php";
                     </thead>
                     <tbody>
                         <?php foreach ($users as $user): ?>
+                            <?php if ($user['role'] === 'admin') continue; ?>
                             <tr data-id="<?= $user['id'] ?>">
                                 <td data-label="Select"><input type="checkbox" name="selectedUsers[]" value="<?= $user['id'] ?>"></td>
                                 <td data-label="ID"><strong>#<?= sprintf("%04d", $user['id']) ?></strong></td>

@@ -6,10 +6,17 @@ $showOutput = (basename(__FILE__) === basename($_SERVER['SCRIPT_NAME']));
 
 // Load environment variables from .env file
 $envFile = __DIR__ . '/.env';
+$env = [];
 if (file_exists($envFile)) {
-    $env = parse_ini_file($envFile);
-} else {
-    $env = [];
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (strpos($line, '#') === 0) continue; // Skip comments
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $env[trim($key)] = trim($value);
+        }
+    }
 }
 
 // Database configuration with fallback defaults

@@ -29,6 +29,15 @@ function getPayPalClient() {
     return new PayPalHttpClient($environment);
 }
 
+// Get full base URL for PayPal redirects
+function getFullBaseUrl() {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $basePath = $GLOBALS['baseUrl'] ?? '/Car-Parking-Rental';
+
+    return $protocol . '://' . $host . $basePath;
+}
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST') {
@@ -74,8 +83,8 @@ if ($method === 'POST') {
                     "description" => "Parking Slot Booking - " . $booking['id']
                 ]],
                 "application_context" => [
-                    "cancel_url" => $baseUrl . "/index.php?page=booking&id=" . $booking['slot_id'] . "&status=cancelled",
-                    "return_url" => $baseUrl . "/index.php?page=booking&id=" . $booking['slot_id'] . "&status=success&booking_id=" . $bookingId
+                    "cancel_url" => getFullBaseUrl() . "/index.php?page=booking&id=" . $booking['slot_id'] . "&status=cancelled",
+                    "return_url" => getFullBaseUrl() . "/index.php?page=booking&id=" . $booking['slot_id'] . "&status=success&booking_id=" . $bookingId
                 ]
             ];
 
