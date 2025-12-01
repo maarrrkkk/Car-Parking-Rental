@@ -1,0 +1,131 @@
+[33mcommit a5b955a227114aadf1136ade99ad9ac74fe7e070[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Dec 1 08:02:20 2025 +0800
+
+    added paypal payment method
+
+[33mcommit fb7ef5e359fbbb05b1068d9a3099f3d2a14ac4b3[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Thu Nov 27 09:25:38 2025 +0800
+
+    initials
+
+[33mcommit 0d7d6f057b59b03b0e1a60c674bffaa25c4a5752[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 04:54:01 2025 +0800
+
+    initial
+
+[33mcommit 61e693a691d69f9a0deeba5ac58acb2e314901f0[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 01:49:01 2025 +0800
+
+    Major initialization
+
+[33mcommit 89b42ddfb2b4e9b1ee7e97f78a0d379a8285280d[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 01:33:14 2025 +0800
+
+    Fix BASE_URL configuration for correct file system path
+
+[33mcommit 9caf0ce3753e46acb21e0572ff22fafc5a4be5b6[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 01:13:33 2025 +0800
+
+    Fix password reset functionality with configurable base URLs
+
+[33mcommit 78d1c86d091d4df7e4950c724b93b616dfa5e408[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 01:04:18 2025 +0800
+
+    Improve password reset email with styled HTML button
+
+[33mcommit 93ed3b78d9b48bbc28c387ec48fc19fb67fb7aab[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 00:59:56 2025 +0800
+
+    add about background cover and edit .env.example file
+
+[33mcommit 38ffddf4ebb9a40122d92adc4251ca910fecfb49[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 00:51:17 2025 +0800
+
+    enhance file path from diff pages
+
+[33mcommit 9ff54f430059863e5e4c44eea6b8e86adeae3aa8[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 00:29:41 2025 +0800
+
+    Make application paths configurable to support different installations
+
+[33mcommit 8fc3237b02a6cc6942b28bacfd3b84660b5aa155[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 00:19:03 2025 +0800
+
+    remove parenthesis fom the .env.example cause syntax error
+
+[33mcommit 1361363516561db9eccdd97a4031b571d08fefd5[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Mon Oct 6 00:13:49 2025 +0800
+
+    Remove default slot insertion from setup.php
+
+[33mcommit 46a4cb371a8b1d3fe4f4f27cd2c66ffaa2217a0b[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sun Oct 5 22:44:29 2025 +0800
+
+    Add .env parsing error fix to README troubleshooting
+
+[33mcommit c46cc4ec1b9b2f5daedcb5551d44a9903fa201a3[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sun Oct 5 18:30:52 2025 +0800
+
+    Add comprehensive collaborator setup guide to README
+
+[33mcommit 1eb5e94bd1ee95ad713eaf5f7d91a840d0962767[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sun Oct 5 18:27:40 2025 +0800
+
+    Fix .env parsing issue and update gitignore
+
+[33mcommit 261aaaa37324a5aae9f0b78022c3777e080add43[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sun Oct 5 18:07:45 2025 +0800
+
+    initial
+
+[33mcommit d367e3d316c25324f2e7df0cede4f15c1ad8d300[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sun Oct 5 18:05:13 2025 +0800
+
+    Add comprehensive README, fix booking form, implement receipt display, and configure proper .gitignore
+
+[33mcommit f623171031bafd07f2a2f18cf4197df3ad3f8f7e[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Tue Sep 23 01:56:51 2025 +0800
+
+    Admin big update
+
+[33mcommit a9767bc57df28d571babe61714c278b7040b220e[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Sat Sep 13 13:03:06 2025 +0800
+
+    logo added, parking slot card change and its data
+
+[33mcommit 54e67ee0aa70dfdfc0659f5a5e2010335772d6bb[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Fri Sep 12 23:32:26 2025 +0800
+
+    fix tha active state color of the nav bar from forground to secondary
+
+[33mcommit ea3939797432ff6a41c24cd8a8121ff8c1d9aab9[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Fri Sep 12 23:27:05 2025 +0800
+
+    change login page to simple and added register page for registration of the client
+
+[33mcommit fd6e6e5965655c1c4a32490b35a0e19b48baf56d[m
+Author: maarrrkkk <johnmarkaguilar405@gmail.com>
+Date:   Thu Sep 11 22:16:28 2025 +0800
+
+    inital

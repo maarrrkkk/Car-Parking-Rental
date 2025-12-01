@@ -77,6 +77,13 @@ A web-based car parking rental system built with PHP, MySQL, and Bootstrap.
    SMTP_ENCRYPTION=tls
    ```
 
+   #### PayPal Configuration (Sandbox)
+   ```env
+   PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+   PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
+   PAYPAL_ENVIRONMENT=sandbox
+   ```
+
 4. **Set up the database:**
 
     The application will automatically create the database and tables when you first access `setup.php` in your browser.
@@ -129,6 +136,11 @@ SMTP_PORT=587
 SMTP_USERNAME=yourgmail@gmail.com
 SMTP_PASSWORD=your_app_password
 SMTP_ENCRYPTION=tls
+
+# PayPal settings (for payment integration)
+PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
+PAYPAL_ENVIRONMENT=sandbox
 ```
 
 ### Step 3: Install Dependencies
@@ -205,6 +217,51 @@ SMTP_PASSWORD=your_16_character_app_password
 - If you disable 2FA, app passwords will stop working
 - You can generate multiple app passwords for different applications
 
+## PayPal Payment Configuration (Sandbox)
+
+To enable PayPal payments for testing purposes, you need to set up a PayPal sandbox account and obtain API credentials.
+
+### Step 1: Create a PayPal Developer Account
+
+1. Go to the PayPal Developer website: https://developer.paypal.com/
+2. Click "Sign Up" if you don't have an account
+3. Follow the registration process
+
+### Step 2: Create a Sandbox Application
+
+1. Log in to your PayPal Developer account
+2. Go to the Dashboard
+3. Click "Apps & Credentials" in the left sidebar
+4. Click "Create App" under "REST API apps"
+5. Enter an app name (e.g., "Car Parking System")
+6. Select "Sandbox" as the environment
+7. Click "Create App"
+
+### Step 3: Get Your API Credentials
+
+1. After creating the app, you'll see your Client ID and Secret
+2. Copy the Client ID and Client Secret (keep them secure)
+
+### Step 4: Configure in .env
+
+Add these lines to your `.env` file:
+
+```env
+PAYPAL_CLIENT_ID=your_sandbox_client_id_here
+PAYPAL_CLIENT_SECRET=your_sandbox_client_secret_here
+PAYPAL_ENVIRONMENT=sandbox
+```
+
+Replace `your_sandbox_client_id_here` and `your_sandbox_client_secret_here` with the actual values from step 3.
+
+### Step 5: Test the Integration
+
+1. Run the application
+2. Try making a booking as a client
+3. Use the PayPal sandbox buyer account to complete the payment
+
+**Note:** Sandbox payments don't involve real money. For production, create a live app and change `PAYPAL_ENVIRONMENT` to `live`.
+
 ## File Structure
 
 ```
@@ -247,6 +304,12 @@ SMTP_PASSWORD=your_16_character_app_password
 - Verify your Gmail app password is correct
 - Check that 2FA is enabled on your Google account
 - Ensure the SMTP settings in `.env` are correct
+
+### PayPal Payment Issues
+- Verify your PayPal Client ID and Secret are correct
+- Ensure you're using sandbox credentials for testing
+- Check that `PAYPAL_ENVIRONMENT` is set to `sandbox` for development
+- Make sure the PayPal SDK is installed via Composer
 
 ### File Upload Issues
 - Check that the `assets/images/` directories are writable
@@ -304,6 +367,7 @@ If you encounter an error like "syntax error, unexpected '(' in .env on line 13"
 - Use HTTPS in production
 - Regularly update dependencies
 - Keep your `.env` file secure and never commit it to version control
+- Store PayPal credentials securely and rotate them regularly
 
 ## License
 
