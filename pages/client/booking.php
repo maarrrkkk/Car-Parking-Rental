@@ -7,6 +7,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+// Load PayPal client ID for SDK
+$paypalClientId = $env['PAYPAL_CLIENT_ID'] ?? "";
+
 // Get slot ID from URL
 $slotId = $_GET['id'] ?? null;
 if (!$slotId) {
@@ -35,137 +38,208 @@ $defaultType = $availableTypes[0] ?? 'daily';
 ?>
 
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Book Parking Slot: <?= htmlspecialchars($slot['name']) ?></h4>
-                </div>
-                <div class="card-body">
-                    <!-- Slot Details -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <img src="<?= htmlspecialchars($slot['image'] ?? 'assets/images/parking_slots/default.jpg') ?>"
-                                alt="Slot Image" class="img-fluid rounded">
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Rates:</h5>
-                            <?php if ($slot['hourly_rate'] > 0): ?>
-                                <p>Hourly: ₱<?= number_format($slot['hourly_rate'], 2) ?></p>
-                            <?php endif; ?>
-                            <?php if ($slot['daily_rate'] > 0): ?>
-                                <p>Daily: ₱<?= number_format($slot['daily_rate'], 2) ?></p>
-                            <?php endif; ?>
-                            <?php if ($slot['monthly_rate'] > 0): ?>
-                                <p>Monthly: ₱<?= number_format($slot['monthly_rate'], 2) ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+<section class="booking-wrapper ">
+    <div class="booking-container mt-5">
 
-                    <!-- Booking Form -->
-                    <form id="bookingForm">
-                        <input type="hidden" name="slot_id" value="<?= $slot['id'] ?>">
+        <!-- Header -->
+        <div class="booking-header">
+            <h2><?= htmlspecialchars($slot['name']) ?></h2>
+        </div>
 
-                        <?php if (count($availableTypes) > 1): ?>
-                        <div class="mb-3">
-                            <label for="duration_type" class="form-label">Duration Type</label>
-                            <select class="form-select" id="duration_type" name="duration_type" required>
-                                <?php foreach ($availableTypes as $type): ?>
-                                    <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <?php else: ?>
-                        <input type="hidden" id="duration_type" name="duration_type" value="<?= $defaultType ?>">
-                        <?php endif; ?>
+        <!-- Slot Details -->
+        <div class="slot-details">
+            <div class="slot-image">
+                <img src="<?= htmlspecialchars($slot['image'] ?? 'assets/images/parking_slots/default.jpg') ?>" alt="Slot Image">
+            </div>
 
-                        <!-- Hourly Fields -->
-                        <div class="mb-3" id="hourlyFields" style="display: <?= $defaultType === 'hourly' ? 'block' : 'none' ?>;">
-                            <label for="start_time_hourly" class="form-label">Start Time</label>
-                            <input type="datetime-local" class="form-control" id="start_time_hourly" name="start_time_hourly" <?= $defaultType === 'hourly' ? 'required' : '' ?>>
-                            <label for="end_time_hourly" class="form-label mt-2">End Time</label>
-                            <input type="datetime-local" class="form-control" id="end_time_hourly" name="end_time_hourly" <?= $defaultType === 'hourly' ? 'required' : '' ?>>
-                        </div>
+            <div class="slot-info">
+                <h3>Rates</h3>
+                <?php if ($slot['hourly_rate'] > 0): ?>
+                    <p>Hourly Rate: ₱<?= number_format($slot['hourly_rate'], 2) ?></p>
+                <?php endif; ?>
 
-                        <!-- Daily Fields -->
-                        <div class="mb-3" id="dailyFields" style="display: <?= $defaultType === 'daily' ? 'block' : 'none' ?>;">
-                            <label for="start_date" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date" name="start_date" <?= $defaultType === 'daily' ? 'required' : '' ?>>
-                            <label for="end_date" class="form-label mt-2">End Date</label>
-                            <input type="date" class="form-control" id="end_date" name="end_date" <?= $defaultType === 'daily' ? 'required' : '' ?>>
-                        </div>
+                <?php if ($slot['daily_rate'] > 0): ?>
+                    <p>Daily Rate: ₱<?= number_format($slot['daily_rate'], 2) ?></p>
+                <?php endif; ?>
 
-                        <!-- Monthly Fields -->
-                        <div class="mb-3" id="monthlyFields" style="display: <?= $defaultType === 'monthly' ? 'block' : 'none' ?>;">
-                            <label for="start_date_monthly" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="start_date_monthly" name="start_date_monthly" <?= $defaultType === 'monthly' ? 'required' : '' ?>>
-                            <p class="mt-2 text-muted" id="monthlyEndDate">End Date: Select a start date</p>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="vehicle_type" class="form-label">Vehicle Type</label>
-                            <select class="form-select" id="vehicle_type" name="vehicle_type" required>
-                                <option value="motorcycle">Motorcycle (+₱<?= number_format($slot['motorcycle_rate'], 2) ?>)</option>
-                                <option value="car">Car (+₱<?= number_format($slot['car_rate'], 2) ?>)</option>
-                                <option value="suv">SUV (+₱<?= number_format($slot['suv_rate'], 2) ?>)</option>
-                                <option value="van">Van (+₱<?= number_format($slot['van_rate'], 2) ?>)</option>
-                                <option value="truck">Truck (+₱<?= number_format($slot['truck_rate'], 2) ?>)</option>
-                                <option value="mini_truck">Mini Truck (+₱<?= number_format($slot['mini_truck_rate'], 2) ?>)</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <p class="text-muted">Estimated Cost: <span id="estimatedCost">₱0.00</span></p>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Proceed to Payment</button>
-                        <a href="<?php echo $baseUrl; ?>/index.php?page=home" class="btn btn-secondary">Cancel</a>
-                    </form>
-
-                    <!-- Payment Step -->
-                    <div id="paymentStep" style="display: none;">
-                        <input type="hidden" id="bookingId" name="bookingId">
-                        <h5 class="mb-3">Payment Instructions</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Scan QR Code to Pay</h6>
-                                <img src="assets/images/gcashQrcode/<?php
-                                    $qrFiles = glob('assets/images/gcashQrcode/*.png') ?: glob('assets/images/gcashQrcode/*.jpg') ?: glob('assets/images/gcashQrcode/*.jpeg') ?: [];
-                                    echo !empty($qrFiles) ? basename($qrFiles[0]) : 'gcash_qr.png';
-                                ?>" alt="GCash QR Code" class="img-fluid" style="max-width: 200px;">
-                                <p class="mt-2"><strong>Amount: ₱<span id="paymentAmount">0.00</span></strong></p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6>How to Pay:</h6>
-                                <ol>
-                                    <li>Open your GCash app</li>
-                                    <li>Tap "Scan QR"</li>
-                                    <li>Scan the QR code above</li>
-                                    <li>Enter the amount: ₱<span id="paymentAmount2">0.00</span></li>
-                                    <li>Confirm the payment</li>
-                                    <li>Take a screenshot of the receipt</li>
-                                </ol>
-                                <div class="mb-3">
-                                    <label for="receipt" class="form-label">Upload Payment Receipt</label>
-                                    <input type="file" class="form-control" id="receipt" name="receipt" accept="image/*" required>
-                                    <div class="form-text">Upload a screenshot of your GCash payment receipt</div>
-                                </div>
-                                <p class="text-muted">After uploading the receipt, click "Confirm Payment" below.</p>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-success" id="confirmPaymentBtn">Confirm Payment</button>
-                            <button type="button" class="btn btn-secondary" id="backToFormBtn">Back to Booking</button>
-                        </div>
-                    </div>
-                </div>
+                <?php if ($slot['monthly_rate'] > 0): ?>
+                    <p>Monthly Rate: ₱<?= number_format($slot['monthly_rate'], 2) ?></p>
+                <?php endif; ?>
             </div>
         </div>
+
+        <!-- Booking Form -->
+        <form id="bookingForm" class="booking-form">
+            <input type="hidden" name="slot_id" value="<?= $slot['id'] ?>">
+
+            <?php if (count($availableTypes) > 1): ?>
+                <div class="form-group">
+                    <label>Duration Type</label>
+                    <select id="duration_type" name="duration_type" required>
+                        <?php foreach ($availableTypes as $type): ?>
+                            <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            <?php else: ?>
+                <input type="hidden" id="duration_type" name="duration_type" value="<?= $defaultType ?>">
+            <?php endif; ?>
+
+            <!-- Hourly Fields -->
+            <div id="hourlyFields" class="form-group hidden">
+                <label>Booking Date</label>
+                <input type="date" id="hourly_date" name="hourly_date" min="">
+
+                <div class="time-selection-row">
+                    <div class="time-field">
+                        <label>Start Time</label>
+                        <select id="start_time_hourly" name="start_time_hourly">
+                            <option value="">Select Start Time</option>
+                        </select>
+                    </div>
+                    <div class="time-field">
+                        <label>End Time</label>
+                        <select id="end_time_hourly" name="end_time_hourly">
+                            <option value="">Select End Time</option>
+                        </select>
+                    </div>
+                </div>
+                <p id="hourlyDurationInfo" class="info"></p>
+            </div>
+
+            <!-- Daily Fields -->
+            <div id="dailyFields" class="form-group hidden">
+                <label>Start Date</label>
+                <input type="date" id="start_date" name="start_date">
+
+                <label>End Date</label>
+                <input type="date" id="end_date" name="end_date">
+            </div>
+
+            <!-- Monthly Fields -->
+            <div id="monthlyFields" class="form-group hidden">
+                <label>Start Date</label>
+                <input type="date" id="start_date_monthly" name="start_date_monthly">
+                <p id="monthlyEndDate" class="info">End Date: Select a start date</p>
+            </div>
+
+            <div class="form-group">
+                <label>Vehicle Type</label>
+                <select id="vehicle_type" name="vehicle_type" required>
+                    <option value="motorcycle">Motorcycle (+₱<?= number_format($slot['motorcycle_rate'], 2) ?>)</option>
+                    <option value="car">Car (+₱<?= number_format($slot['car_rate'], 2) ?>)</option>
+                    <option value="suv">SUV (+₱<?= number_format($slot['suv_rate'], 2) ?>)</option>
+                    <option value="van">Van (+₱<?= number_format($slot['van_rate'], 2) ?>)</option>
+                    <option value="truck">Truck (+₱<?= number_format($slot['truck_rate'], 2) ?>)</option>
+                    <option value="mini_truck">Mini Truck (+₱<?= number_format($slot['mini_truck_rate'], 2) ?>)</option>
+                </select>
+            </div>
+
+            <p class="estimated text-danger">Estimated Cost: <span id="estimatedCost">₱0.00</span></p>
+
+            <div class="button-row">
+                <button id="submitBtn" class="paypal-btn">
+                    <i class="fab fa-paypal"></i>
+                    Pay with PayPal
+                </button>
+
+                <a href="<?= $baseUrl ?>/index.php?page=home" class="secondary">Cancel</a>
+            </div>
+        </form>
+
+        <!-- Payment Section -->
+        <div id="paymentStep" class="payment-section hidden">
+            <input type="hidden" id="bookingId">
+
+            <h3>Complete Payment</h3>
+            <p class="pay-amount">Amount: ₱<span id="paymentAmount">0.00</span></p>
+
+            <div id="paypal-button-container"></div>
+
+            <button id="backToFormBtn" class="secondary mt-3">Back</button>
+        </div>
     </div>
-</div>
+</section>
+
 
 <script>
+    // Format number with thousand separators and 2 decimal places
+    function formatCurrency(amount) {
+        return amount.toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // Time options for hourly booking (6 AM to 10 PM)
+    const timeOptions = [];
+    for (let hour = 6; hour <= 22; hour++) {
+        const hour12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const timeValue = hour.toString().padStart(2, '0') + ':00';
+        const timeLabel = hour12 + ':00 ' + ampm;
+        timeOptions.push({ value: timeValue, label: timeLabel, hour: hour });
+    }
+
+    // Populate start time dropdown
+    function populateStartTimeOptions() {
+        const startTimeSelect = document.getElementById('start_time_hourly');
+        startTimeSelect.innerHTML = '<option value="">Select Start Time</option>';
+        
+        timeOptions.forEach(function(time) {
+            // Exclude the last time slot as start time (need at least 1 hour)
+            if (time.hour < 22) {
+                const option = document.createElement('option');
+                option.value = time.value;
+                option.textContent = time.label;
+                startTimeSelect.appendChild(option);
+            }
+        });
+    }
+
+    // Populate end time dropdown based on selected start time
+    function populateEndTimeOptions() {
+        const startTimeSelect = document.getElementById('start_time_hourly');
+        const endTimeSelect = document.getElementById('end_time_hourly');
+        const startValue = startTimeSelect.value;
+        
+        endTimeSelect.innerHTML = '<option value="">Select End Time</option>';
+        
+        if (!startValue) {
+            endTimeSelect.disabled = true;
+            return;
+        }
+        
+        endTimeSelect.disabled = false;
+        const startHour = parseInt(startValue.split(':')[0]);
+        
+        timeOptions.forEach(function(time) {
+            // Only show times after the selected start time
+            if (time.hour > startHour) {
+                const option = document.createElement('option');
+                option.value = time.value;
+                option.textContent = time.label;
+                endTimeSelect.appendChild(option);
+            }
+        });
+    }
+
+    // Update duration info display
+    function updateHourlyDurationInfo() {
+        const startTime = document.getElementById('start_time_hourly').value;
+        const endTime = document.getElementById('end_time_hourly').value;
+        const infoElement = document.getElementById('hourlyDurationInfo');
+        
+        if (startTime && endTime) {
+            const startHour = parseInt(startTime.split(':')[0]);
+            const endHour = parseInt(endTime.split(':')[0]);
+            const hours = endHour - startHour;
+            infoElement.textContent = 'Duration: ' + hours + ' hour' + (hours > 1 ? 's' : '');
+        } else {
+            infoElement.textContent = '';
+        }
+    }
+
     // Toggle form fields based on duration type
     function toggleFields() {
         const durationType = document.getElementById('duration_type').value;
@@ -174,11 +248,21 @@ $defaultType = $availableTypes[0] ?? 'daily';
         document.getElementById('monthlyFields').style.display = durationType === 'monthly' ? 'block' : 'none';
 
         // Set required attributes
+        document.getElementById('hourly_date').required = durationType === 'hourly';
         document.getElementById('start_time_hourly').required = durationType === 'hourly';
         document.getElementById('end_time_hourly').required = durationType === 'hourly';
         document.getElementById('start_date').required = durationType === 'daily';
         document.getElementById('end_date').required = durationType === 'daily';
         document.getElementById('start_date_monthly').required = durationType === 'monthly';
+
+        // Initialize hourly time dropdowns when hourly is selected
+        if (durationType === 'hourly') {
+            populateStartTimeOptions();
+            populateEndTimeOptions();
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('hourly_date').min = today;
+        }
 
         calculateCost();
     }
@@ -193,15 +277,17 @@ $defaultType = $availableTypes[0] ?? 'daily';
         let actualDurationType = durationType;
 
         if (durationType === 'hourly') {
+            const hourlyDate = document.getElementById('hourly_date').value;
             const startTime = document.getElementById('start_time_hourly').value;
             const endTime = document.getElementById('end_time_hourly').value;
-            if (startTime && endTime) {
-                const start = new Date(startTime);
-                const end = new Date(endTime);
-                if (start < end) {
-                    hours = (end - start) / (1000 * 60 * 60);
-                }
+            
+            if (hourlyDate && startTime && endTime) {
+                const startHour = parseInt(startTime.split(':')[0]);
+                const endHour = parseInt(endTime.split(':')[0]);
+                hours = endHour - startHour;
             }
+            
+            updateHourlyDurationInfo();
         } else if (durationType === 'daily') {
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
@@ -231,16 +317,6 @@ $defaultType = $availableTypes[0] ?? 'daily';
         if ((durationType === 'hourly' && hours > 0) ||
             (durationType === 'daily' && days > 0) ||
             (durationType === 'monthly' && months > 0)) {
-
-            // For hourly, ensure valid time range
-            if (durationType === 'hourly') {
-                const start = new Date(document.getElementById('start_time_hourly').value);
-                const end = new Date(document.getElementById('end_time_hourly').value);
-                if (start >= end) {
-                    document.getElementById('estimatedCost').textContent = 'Invalid time range';
-                    return;
-                }
-            }
 
             let baseCost = 0;
             let vehicleRate = 0;
@@ -276,7 +352,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
             }
 
             const totalCost = baseCost + vehicleRate;
-            document.getElementById('estimatedCost').textContent = '₱' + totalCost.toFixed(2);
+            document.getElementById('estimatedCost').textContent = '₱' + formatCurrency(totalCost);
 
             // Update duration type display if switched
             if (actualDurationType !== durationType) {
@@ -296,7 +372,13 @@ $defaultType = $availableTypes[0] ?? 'daily';
         toggleFields();
         calculateCost();
     });
-    document.getElementById('start_time_hourly').addEventListener('change', calculateCost);
+    document.getElementById('hourly_date').addEventListener('change', calculateCost);
+    document.getElementById('start_time_hourly').addEventListener('change', function() {
+        populateEndTimeOptions();
+        // Reset end time when start time changes
+        document.getElementById('end_time_hourly').value = '';
+        calculateCost();
+    });
     document.getElementById('end_time_hourly').addEventListener('change', calculateCost);
     document.getElementById('start_date').addEventListener('change', calculateCost);
     document.getElementById('end_date').addEventListener('change', calculateCost);
@@ -312,10 +394,18 @@ $defaultType = $availableTypes[0] ?? 'daily';
         let isValid = true;
 
         if (durationType === 'hourly') {
-            const start = document.getElementById('start_time_hourly').value;
-            const end = document.getElementById('end_time_hourly').value;
-            if (!start || !end || new Date(start) >= new Date(end)) {
-                alert('Please select valid start and end times for hourly booking.');
+            const hourlyDate = document.getElementById('hourly_date').value;
+            const startTime = document.getElementById('start_time_hourly').value;
+            const endTime = document.getElementById('end_time_hourly').value;
+            
+            if (!hourlyDate) {
+                alert('Please select a booking date for hourly booking.');
+                isValid = false;
+            } else if (!startTime) {
+                alert('Please select a start time for hourly booking.');
+                isValid = false;
+            } else if (!endTime) {
+                alert('Please select an end time for hourly booking.');
                 isValid = false;
             }
         } else if (durationType === 'daily') {
@@ -346,8 +436,11 @@ $defaultType = $availableTypes[0] ?? 'daily';
         // Generate start_time and end_time based on inputs
         let startTime, endTime;
         if (durationTypeVal === 'hourly') {
-            startTime = document.getElementById('start_time_hourly').value.replace('T', ' ');
-            endTime = document.getElementById('end_time_hourly').value.replace('T', ' ');
+            const hourlyDate = document.getElementById('hourly_date').value;
+            const startTimeVal = document.getElementById('start_time_hourly').value;
+            const endTimeVal = document.getElementById('end_time_hourly').value;
+            startTime = hourlyDate + ' ' + startTimeVal + ':00';
+            endTime = hourlyDate + ' ' + endTimeVal + ':00';
         } else if (durationTypeVal === 'daily') {
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
@@ -382,7 +475,9 @@ $defaultType = $availableTypes[0] ?? 'daily';
                     // Update payment amount
                     const amount = document.getElementById('estimatedCost').textContent.replace('₱', '');
                     document.getElementById('paymentAmount').textContent = amount;
-                    document.getElementById('paymentAmount2').textContent = amount;
+
+                    // Initialize PayPal button
+                    initPayPalButton(data.booking_id, amount);
                 } else {
                     alert('Error: ' + data.message);
                 }
@@ -397,52 +492,62 @@ $defaultType = $availableTypes[0] ?? 'daily';
             });
     });
 
-    // Confirm Payment
-    document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
-        const confirmBtn = this;
-        confirmBtn.disabled = true;
-        confirmBtn.textContent = 'Processing...';
-
-        const formData = new FormData();
-        formData.append('confirm_payment', '1');
-        formData.append('booking_id', document.getElementById('bookingId').value);
-
-        const receiptFile = document.getElementById('receipt').files[0];
-        if (receiptFile) {
-            formData.append('receipt', receiptFile);
-        } else {
-            alert('Please upload your payment receipt.');
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Confirm Payment';
-            return;
-        }
-
-        fetch('<?php echo $baseUrl; ?>/api/booking.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Payment confirmed successfully! Your booking is now pending approval.');
-                    window.location.href = '<?php echo $baseUrl; ?>/index.php?page=profile';
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                alert('An error occurred. Please try again.');
-                console.error(error);
-            })
-            .finally(() => {
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = 'Confirm Payment';
-            });
-    });
 
     // Back to Form
     document.getElementById('backToFormBtn').addEventListener('click', function() {
         document.getElementById('paymentStep').style.display = 'none';
         document.getElementById('bookingForm').style.display = 'block';
     });
+
+    // PayPal Integration
+    function initPayPalButton(bookingId, amount) {
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return fetch('<?php echo $baseUrl; ?>/api/payment.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=create_order&booking_id=' + bookingId
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(orderData) {
+                        if (orderData.success) {
+                            return orderData.order_id;
+                        } else {
+                            throw new Error(orderData.message);
+                        }
+                    });
+            },
+            onApprove: function(data, actions) {
+                return fetch('<?php echo $baseUrl; ?>/api/payment.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'action=capture_order&order_id=' + data.orderID + '&booking_id=' + bookingId
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(captureData) {
+                        if (captureData.success) {
+                            alert('Payment completed successfully! Your booking is now active.');
+                            window.location.href = '<?php echo $baseUrl; ?>/index.php?page=profile';
+                        } else {
+                            alert('Payment failed: ' + captureData.message);
+                        }
+                    });
+            },
+            onError: function(err) {
+                console.error('PayPal error:', err);
+                alert('An error occurred with PayPal. Please try again.');
+            }
+        }).render('#paypal-button-container');
+    }
 </script>
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=<?php echo htmlspecialchars($paypalClientId); ?>&currency=PHP&components=buttons"></script>

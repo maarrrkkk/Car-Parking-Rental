@@ -6,10 +6,17 @@ $showOutput = (basename(__FILE__) === basename($_SERVER['SCRIPT_NAME']));
 
 // Load environment variables from .env file
 $envFile = __DIR__ . '/.env';
+$env = [];
 if (file_exists($envFile)) {
-    $env = parse_ini_file($envFile);
-} else {
-    $env = [];
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (strpos($line, '#') === 0) continue; // Skip comments
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $env[trim($key)] = trim($value);
+        }
+    }
 }
 
 // Database configuration with fallback defaults
@@ -104,6 +111,7 @@ try {
             amount DECIMAL(10,2) NOT NULL,
             receipt VARCHAR(255) NULL,
             paid_at TIMESTAMP NULL,
+            payment_method ENUM('paypal','gcash') DEFAULT 'paypal',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE
@@ -117,6 +125,7 @@ try {
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0.00");
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS receipt VARCHAR(255) NULL");
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL");
+    $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_method ENUM('paypal','gcash') DEFAULT 'paypal'");
 
     // Update status ENUM to include 'pending'
     $pdo->exec("ALTER TABLE bookings MODIFY COLUMN status ENUM('pending','active','completed','cancelled') DEFAULT 'pending'");

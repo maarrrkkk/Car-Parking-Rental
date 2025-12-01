@@ -24,11 +24,13 @@ $parkingSpaces = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p class="text-secondary">Please check back later.</p>
                 </div>
             </article>
+            </a>
         </div>
     <?php else: ?>
         <?php foreach ($parkingSpaces as $space): ?>
             <div class="col-md-4">
-                <article class="card h-100 shadow-sm">
+                <a href="?page=slot_details&id=<?= $space['id'] ?>" class="text-decoration-none d-block h-100">
+                    <article class="card h-100 shadow-sm">
                     <!-- Hero Section -->
                     <section class="card__hero" 
                              style="background: url('<?= htmlspecialchars($space['image'] ?? 'assets/images/default.jpg') ?>') center/cover no-repeat;">
@@ -45,15 +47,10 @@ $parkingSpaces = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <!-- Card Content -->
                     <div class="margin-top-auto p-3 gap-2 d-flex flex-column">
-                        <!-- View Details -->
-                        <a href="?page=slot_details&id=<?= $space['id'] ?>" class="btn btn-outline-primary w-100 mb-2">
-                            View Details
-                        </a>
-
                         <!-- Book Now -->
                         <button
                             class="card__btn2 <?= $space['available'] ? '' : 'disabled' ?>"
-                            onclick="handleBooking(<?= $space['id'] ?>, <?= $isLoggedIn ? 'true' : 'false' ?>)">
+                            onclick="event.stopPropagation(); event.preventDefault(); handleBooking(<?= $space['id'] ?>, <?= $isLoggedIn ? 'true' : 'false' ?>)">
                             <?= $space['available'] ? 'Book This' : 'Unavailable' ?>
                         </button>
                     </div>

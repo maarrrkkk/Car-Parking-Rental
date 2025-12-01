@@ -5,16 +5,17 @@
         <!-- Logo + Brand -->
         <a href="?page=home" class="navbar-brand d-flex align-items-center">
             <img src="assets/images/logo.png" alt="Car Parking Rental Logo" 
-                 style="height: 40px; width: 100%; margin-right: 10px;">
-            <span class="fw-bold d-none d-md-inline">Car Parking Rental</span>
+                 style="height: 50px; width: 100%; margin-right: 10px;">
         </a>
 
         <!-- Custom Hamburger -->
         <label for="check" class="menuButton d-lg-none ms-auto" id="customToggler">
-            <input id="check" type="checkbox">
-            <span class="top"></span>
-            <span class="mid"></span>
-            <span class="bot"></span>
+            <input hidden="" class="check-icon" id="check" name="check" type="checkbox">
+            <label class="icon-menu" for="check">
+                <div class="bar bar--1"></div>
+                <div class="bar bar--2"></div>
+                <div class="bar bar--3"></div>
+            </label>
         </label>
 
         <!-- Nav Links -->

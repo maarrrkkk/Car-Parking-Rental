@@ -32,7 +32,7 @@ $vehicleTypes = [
 ?>
 
 <section class="py-5 bg-light">
-    <div class="container">
+    <div class="container  mt-5">
         <div class="row">
             <!-- Slot Image -->
             <div class="col-lg-6 mb-4">
