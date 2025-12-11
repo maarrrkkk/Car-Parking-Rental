@@ -1,47 +1,47 @@
-# Composer dependencies
-vendor/
+# # Composer dependencies
+# vendor/
 
-# Environment variables (contains sensitive data)
-.env
+# # Environment variables (contains sensitive data)
+# .env
 
-# Uploaded files and assets
-assets/images/parking_slots/
-assets/images/receipts/
-assets/images/gcashQrcode/
+# # Uploaded files and assets
+# assets/images/parking_slots/
+# assets/images/receipts/
+# assets/images/gcashQrcode/
 
-# Cache and temporary files
-*.log
-*.tmp
-*.cache
-*.bak
+# # Cache and temporary files
+# *.log
+# *.tmp
+# *.cache
+# *.bak
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# # OS generated files
+# .DS_Store
+# .DS_Store?
+# ._*
+# .Spotlight-V100
+# .Trashes
+# ehthumbs.db
+# Thumbs.db
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+# # IDE files
+# .vscode/
+# .idea/
+# *.swp
+# *.swo
+# *~
 
-# Database files (if any local SQLite files)
-*.sqlite
-*.db
+# # Database files (if any local SQLite files)
+# *.sqlite
+# *.db
 
-# Node modules (if any frontend dependencies)
-node_modules/
+# # Node modules (if any frontend dependencies)
+# node_modules/
 
-# Build directories
-build/
-dist/
+# # Build directories
+# build/
+# dist/
 
-# PHP error logs
-error_log
-php_error.log
+# # PHP error logs
+# error_log
+# php_error.log

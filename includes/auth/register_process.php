@@ -75,42 +75,41 @@ $stmt->execute([
 
 $userId = $pdo->lastInsertId();
 
-// Send verification email
-require_once '../../vendor/autoload.php';
-
+// Send verification email using PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+require_once '../../vendor/autoload.php';
 
 $mail = new PHPMailer(true);
 
 try {
+    // Server settings
     $mail->isSMTP();
-    $mail->Host = $env['SMTP_HOST'] ?? 'smtp.gmail.com';
+    $mail->Host = $env['SMTP_HOST'];
     $mail->SMTPAuth = true;
-    $mail->Username = $env['SMTP_USERNAME'] ?? 'yourgmail@gmail.com';
-    $mail->Password = $env['SMTP_PASSWORD'] ?? 'your_app_password';
+    $mail->Username = $env['SMTP_USERNAME'];
+    $mail->Password = $env['SMTP_PASSWORD'];
     $mail->SMTPSecure = $env['SMTP_ENCRYPTION'] === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port = $env['SMTP_PORT'] ?? 587;
+    $mail->Port = $env['SMTP_PORT'];
 
-    $mail->setFrom($env['SMTP_USERNAME'] ?? 'yourgmail@gmail.com', 'Car Parking Rental');
-    $mail->addReplyTo($env['SMTP_USERNAME'] ?? 'yourgmail@gmail.com', 'Car Parking Rental Support');
+    // Recipients
+    $mail->setFrom($env['SMTP_USERNAME'], 'Car Parking Rental');
+    $mail->addReplyTo($env['SMTP_USERNAME'], 'Car Parking Rental Support');
     $mail->addAddress($email, $firstname . ' ' . $lastname);
 
+    // Content
     $mail->isHTML(false);
     $mail->Subject = 'Verify Your Email - Car Parking Rental';
     $mail->Body = "Hello $firstname,\n\nThank you for registering with Car Parking Rental.\n\nYour verification code is: $verificationCode\n\nThis code will expire in 24 hours.\n\nPlease enter this code on the verification page to activate your account.\n\nBest regards,\nCar Parking Rental Team";
 
     $mail->send();
-
-    // Redirect to verification page
-    header("Location: ../../index.php?page=verify_email&email=" . urlencode($email));
-    exit;
 } catch (Exception $e) {
-    // If email fails, delete the user and show error
-    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
-
-    header("Location: ../../index.php?page=register&status=error&message=Failed to send verification email. Please try again.");
-    exit;
+    // Log error but continue with registration
+    error_log("Email could not be sent. Mailer Error: {$mail->ErrorInfo}");
 }
+
+// Redirect to verification page
+header("Location: ../../index.php?page=verify_email&email=" . urlencode($email));
+exit;
 ?>

@@ -2,12 +2,20 @@
 $email = isset($_GET['email']) ? htmlspecialchars($_GET['email']) : '';
 $message = isset($_GET['message']) ? htmlspecialchars($_GET['message']) : '';
 $status = isset($_GET['status']) ? $_GET['status'] : '';
+$prefillCode = isset($_GET['code']) ? htmlspecialchars($_GET['code']) : '';
 ?>
 
 <div class="d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow p-4" style="width: 100%; max-width: 450px;">
         <h3 class="text-center mb-4">Verify Your Email</h3>
         <p class="text-center mb-4">We've sent a 6-digit verification code to <strong><?php echo $email; ?></strong></p>
+
+        <?php if ($prefillCode): ?>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Development mode: Verification code has been pre-filled for testing.
+        </div>
+        <?php endif; ?>
 
         <?php if ($status === 'error' && $message): ?>
         <div class="alert alert-danger">
@@ -26,6 +34,7 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
                     class="form-control"
                     id="code"
                     name="code"
+                    value="<?php echo $prefillCode; ?>"
                     placeholder="Enter 6-digit code"
                     required
                     pattern="^[0-9]{6}$"

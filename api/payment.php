@@ -77,9 +77,31 @@ if ($method === 'POST') {
                 "purchase_units" => [[
                     "reference_id" => $bookingId,
                     "amount" => [
-                        "value" => number_format($booking['amount'], 2, '.', ''),
-                        "currency_code" => "PHP"
+                        "value" => number_format($booking['amount'], 0, '.', ''),
+                        "currency_code" => "PHP",
+                        "breakdown" => [
+                            "item_total" => [
+                                "value" => number_format($booking['amount'], 0, '.', ''),
+                                "currency_code" => "PHP"
+                            ],
+                            "shipping" => [
+                                "value" => "0.00",
+                                "currency_code" => "PHP"
+                            ],
+                            "tax_total" => [
+                                "value" => "0.00",
+                                "currency_code" => "PHP"
+                            ]
+                        ]
                     ],
+                    "items" => [[
+                        "name" => "Parking Slot Booking",
+                        "quantity" => "1",
+                        "unit_amount" => [
+                            "value" => number_format($booking['amount'], 0, '.', ''),
+                            "currency_code" => "PHP"
+                        ]
+                    ]],
                     "description" => "Parking Slot Booking - " . $booking['id']
                 ]],
                 "application_context" => [

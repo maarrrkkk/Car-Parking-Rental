@@ -501,6 +501,12 @@ $defaultType = $availableTypes[0] ?? 'daily';
 
     // PayPal Integration
     function initPayPalButton(bookingId, amount) {
+        if (typeof paypal === 'undefined') {
+            alert('PayPal SDK not loaded. Please refresh the page and try again.');
+            return;
+        }
+        // Clear existing buttons
+        document.getElementById('paypal-button-container').innerHTML = '';
         paypal.Buttons({
             createOrder: function(data, actions) {
                 return fetch('<?php echo $baseUrl; ?>/api/payment.php', {
