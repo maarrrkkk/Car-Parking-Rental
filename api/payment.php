@@ -155,16 +155,43 @@ if ($method === 'POST') {
             $response = $client->execute($request);
 
             if ($response->result->status === 'COMPLETED') {
-                // Update booking status
+                $pdo->beginTransaction();
+                
+                // Get booking amount and user_id for updating user stats
+                $stmt = $pdo->prepare("SELECT amount, user_id FROM bookings WHERE id = :id");
+                $stmt->execute(['id' => $bookingId]);
+                $bookingData = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Update booking status to active
                 $stmt = $pdo->prepare("UPDATE bookings SET status = 'active', paid_at = NOW(), payment_method = 'paypal' WHERE id = :id");
                 $stmt->execute(['id' => $bookingId]);
+                
+                // Update user total_spent when payment is completed
+                if ($bookingData) {
+                    $stmt = $pdo->prepare("UPDATE users SET total_spent = total_spent + :amount WHERE id = :user_id");
+                    $stmt->execute([
+                        'amount' => $bookingData['amount'],
+                        'user_id' => $bookingData['user_id']
+                    ]);
+                }
+                
+                // Mark slot as unavailable when payment is completed (booking becomes active)
+                $stmt = $pdo->prepare("UPDATE slots SET available = 0 WHERE id = (SELECT slot_id FROM bookings WHERE id = :id)");
+                $stmt->execute(['id' => $bookingId]);
+                
+                $pdo->commit();
 
                 echo json_encode(['success' => true, 'message' => 'Payment completed successfully']);
             } else {
+                // Payment failed, slot remains available (was never marked unavailable)
                 echo json_encode(['success' => false, 'message' => 'Payment not completed']);
             }
 
         } catch (Exception $e) {
+            // Payment error, make slot available again
+            $stmt = $pdo->prepare("UPDATE slots SET available = 1 WHERE id = (SELECT slot_id FROM bookings WHERE id = :id)");
+            $stmt->execute(['id' => $bookingId]);
+            
             echo json_encode(['success' => false, 'message' => 'Failed to capture payment: ' . $e->getMessage()]);
         }
 

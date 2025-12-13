@@ -13,7 +13,7 @@ function isInvalid($field, $error_fields)
 }
 ?>
 
-<div class="d-flex justify-content-center align-items-center vh-100">
+<div class="py-5 d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow p-4" style="width: 100%; max-width: 450px;">
         <h3 class="text-center mb-4">Create Account</h3>
         <form id="registerForm" method="POST" action="./includes/auth/register_process.php">

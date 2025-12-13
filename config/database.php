@@ -72,6 +72,17 @@ try {
             $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL");
         }
 
+        // Create waitlist table if not exists
+        $pdo->exec("CREATE TABLE IF NOT EXISTS waitlist (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            slot_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (slot_id) REFERENCES slots(id),
+            UNIQUE KEY unique_user_slot (user_id, slot_id)
+        )");
+
     }
 
 } catch (PDOException $e) {

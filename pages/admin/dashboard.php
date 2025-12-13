@@ -223,21 +223,20 @@ require_once "../../includes/auth/all_bookings_backend.php";
                 <table class="table table-bordered" width="100%" cellspacing="0">
                     <thead class="table-light">
                         <tr>
-                            <th>Booking ID</th>
+                            <th>Booking Receipt</th>
                             <th>Customer</th>
                             <th>Slot</th>
                             <th>Date & Time</th>
                             <th>Duration</th>
                             <th>Amount</th>
                             <th>Status</th>
-                            <th>Receipt</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($allBookings as $booking): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($booking['id']); ?></td>
+                                <td><?php echo htmlspecialchars($booking['receipt']); ?></td>
                                 <td>
                                     <div>
                                         <strong><?php echo htmlspecialchars($booking['user']); ?></strong><br>
@@ -269,15 +268,6 @@ require_once "../../includes/auth/all_bookings_backend.php";
                                             <?php echo $booking['status'] === 'pending' ? 'bg-info' : ($booking['status'] === 'active' ? 'bg-warning' : ($booking['status'] === 'completed' ? 'bg-success' : ($booking['status'] === 'cancelled' ? 'bg-danger' : 'bg-secondary'))); ?>">
                                         <?php echo htmlspecialchars(ucfirst($booking['status'])); ?>
                                     </span>
-                                </td>
-                                <td>
-                                    <?php if ($booking['receipt']): ?>
-                                        <a href="../../<?php echo htmlspecialchars($booking['receipt']); ?>" target="_blank">
-                                            <img src="../../<?php echo htmlspecialchars($booking['receipt']); ?>" alt="Receipt" style="width: 50px; height: auto;">
-                                        </a>
-                                    <?php else: ?>
-                                        <span class="text-muted">No receipt</span>
-                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-danger" onclick="deleteBooking('<?php echo $booking['id']; ?>')">

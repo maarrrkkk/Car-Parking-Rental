@@ -62,14 +62,39 @@ if ($confirmPayment) {
 
     // Update booking with receipt and status
     try {
-        $stmt = $pdo->prepare("UPDATE bookings SET status = 'pending', receipt = :receipt, paid_at = NOW() WHERE id = :id");
+        $pdo->beginTransaction();
+        
+        // Get booking amount for updating user stats
+        $stmt = $pdo->prepare("SELECT amount, user_id FROM bookings WHERE id = :id");
+        $stmt->execute(['id' => $bookingId]);
+        $bookingData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Update booking status to active when receipt is confirmed
+        $stmt = $pdo->prepare("UPDATE bookings SET status = 'active', receipt = :receipt, paid_at = NOW() WHERE id = :id");
         $stmt->execute([
             'receipt' => 'assets/images/receipts/' . $filename,
             'id' => $bookingId
         ]);
+        
+        // Update user total_spent when payment is confirmed
+        if ($bookingData) {
+            $stmt = $pdo->prepare("UPDATE users SET total_spent = total_spent + :amount WHERE id = :user_id");
+            $stmt->execute([
+                'amount' => $bookingData['amount'],
+                'user_id' => $bookingData['user_id']
+            ]);
+        }
+        
+        // Mark slot as unavailable when payment is confirmed (booking becomes active)
+        $stmt = $pdo->prepare("UPDATE slots SET available = 0 WHERE id = (SELECT slot_id FROM bookings WHERE id = :id)");
+        $stmt->execute(['id' => $bookingId]);
 
+        $pdo->commit();
         echo json_encode(['success' => true, 'message' => 'Payment confirmed successfully']);
     } catch (Exception $e) {
+        $pdo->rollBack();
+        
+        // On failure, slot remains available (was never marked unavailable)
         echo json_encode(['success' => false, 'message' => 'Payment confirmation failed: ' . $e->getMessage()]);
     }
     exit;
@@ -80,13 +105,73 @@ if (!$slotId || !$startTime || !$endTime || !$durationType || !$vehicleType) {
     exit;
 }
 
-// Validate slot is available
-$stmt = $pdo->prepare("SELECT * FROM slots WHERE id = :id AND available = 1");
+// Check for time conflicts with existing active bookings
+$stmt = $pdo->prepare("
+    SELECT id, user_id, start_time, end_time
+    FROM bookings
+    WHERE slot_id = :slot_id
+    AND status = 'active'
+    AND (
+        (start_time <= :start_time AND end_time > :start_time) OR
+        (start_time < :end_time AND end_time >= :end_time) OR
+        (start_time >= :start_time AND end_time <= :end_time)
+    )
+");
+$stmt->execute([
+    'slot_id' => $slotId,
+    'start_time' => $startTime,
+    'end_time' => $endTime
+]);
+$conflictingBooking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($conflictingBooking) {
+    // Check if current user already has this booking
+    if ($conflictingBooking['user_id'] == $userId) {
+        echo json_encode(['success' => false, 'message' => 'You already have an active booking for this time slot.']);
+        exit;
+    }
+    
+    // Check if already in waitlist
+    $stmt = $pdo->prepare("SELECT id FROM waitlist WHERE user_id = :user_id AND slot_id = :slot_id");
+    $stmt->execute(['user_id' => $userId, 'slot_id' => $slotId]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => false, 'message' => 'You are already in the waitlist for this slot.']);
+        exit;
+    }
+
+    // Add to waitlist
+    $stmt = $pdo->prepare("INSERT INTO waitlist (user_id, slot_id) VALUES (:user_id, :slot_id)");
+    $stmt->execute(['user_id' => $userId, 'slot_id' => $slotId]);
+    
+    $currentUserEndTime = date('M d, Y h:i A', strtotime($conflictingBooking['end_time']));
+    echo json_encode(['success' => true, 'message' => "Slot is currently unavailable until {$currentUserEndTime}. You have been added to the waitlist."]);
+    exit;
+}
+
+// Validate slot exists (even if available = 0, slot should still exist)
+$stmt = $pdo->prepare("SELECT * FROM slots WHERE id = :id");
 $stmt->execute(['id' => $slotId]);
 $slot = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$slot) {
-    echo json_encode(['success' => false, 'message' => 'Slot not available']);
+    echo json_encode(['success' => false, 'message' => 'Slot not found']);
+    exit;
+}
+
+// Check if slot is available for booking (not marked as unavailable)
+if ($slot['available'] == 0) {
+    // Check if already in waitlist
+    $stmt = $pdo->prepare("SELECT id FROM waitlist WHERE user_id = :user_id AND slot_id = :slot_id");
+    $stmt->execute(['user_id' => $userId, 'slot_id' => $slotId]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => false, 'message' => 'You are already in the waitlist for this slot.']);
+        exit;
+    }
+
+    // Add to waitlist
+    $stmt = $pdo->prepare("INSERT INTO waitlist (user_id, slot_id) VALUES (:user_id, :slot_id)");
+    $stmt->execute(['user_id' => $userId, 'slot_id' => $slotId]);
+    echo json_encode(['success' => true, 'message' => 'Slot is currently unavailable. You have been added to the waitlist.']);
     exit;
 }
 
@@ -140,6 +225,13 @@ try {
         'amount' => $cost
     ]);
     $bookingId = $pdo->lastInsertId();
+
+    // DON'T mark slot as unavailable here - wait until payment is completed
+    // This prevents race conditions and ensures slots are only unavailable when actually in use
+
+    // Update user statistics - increment total bookings count
+    $stmt = $pdo->prepare("UPDATE users SET total_bookings = total_bookings + 1 WHERE id = :user_id");
+    $stmt->execute(['user_id' => $userId]);
 
     $pdo->commit();
 

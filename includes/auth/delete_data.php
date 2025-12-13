@@ -25,7 +25,33 @@ try {
             break;
 
         case "booking":
-            $stmt = $pdo->prepare("DELETE FROM bookings WHERE id = :id");
+            // Get booking details before deletion for stats update
+            $stmt = $pdo->prepare("SELECT user_id, amount, status FROM bookings WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+            $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($booking) {
+                // Delete the booking
+                $stmt = $pdo->prepare("DELETE FROM bookings WHERE id = :id");
+                $stmt->execute(['id' => $id]);
+                
+                // Update user statistics
+                // Decrement total_bookings
+                $stmt = $pdo->prepare("UPDATE users SET total_bookings = GREATEST(total_bookings - 1, 0) WHERE id = :user_id");
+                $stmt->execute(['user_id' => $booking['user_id']]);
+                
+                // If booking was paid, deduct the amount from total_spent
+                if (in_array($booking['status'], ['active', 'completed']) && $booking['paid_at']) {
+                    $stmt = $pdo->prepare("UPDATE users SET total_spent = GREATEST(total_spent - :amount, 0) WHERE id = :user_id");
+                    $stmt->execute([
+                        'amount' => $booking['amount'],
+                        'user_id' => $booking['user_id']
+                    ]);
+                }
+            } else {
+                echo json_encode(["success" => false, "message" => "Booking not found"]);
+                exit;
+            }
             break;
 
 

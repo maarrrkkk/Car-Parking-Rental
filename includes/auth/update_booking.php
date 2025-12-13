@@ -21,9 +21,30 @@ if (!in_array($status, $validStatuses)) {
 }
 
 try {
+    $pdo->beginTransaction();
+    
+    // Get booking details first
+    $stmt = $pdo->prepare("SELECT slot_id FROM bookings WHERE id = :id");
+    $stmt->execute(['id' => $id]);
+    $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$booking) {
+        echo json_encode(["success" => false, "message" => "Booking not found"]);
+        exit;
+    }
+    
+    // Update booking status
     $stmt = $pdo->prepare("UPDATE bookings SET status = :status WHERE id = :id");
     $stmt->execute(['status' => $status, 'id' => $id]);
-
+    
+    // If booking is cancelled or completed, make the slot available again
+    if (in_array($status, ['cancelled', 'completed'])) {
+        $stmt = $pdo->prepare("UPDATE slots SET available = 1 WHERE id = :slot_id");
+        $stmt->execute(['slot_id' => $booking['slot_id']]);
+    }
+    
+    $pdo->commit();
+    
     echo json_encode(["success" => true]);
 } catch (PDOException $e) {
     echo json_encode([

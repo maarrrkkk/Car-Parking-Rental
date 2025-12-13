@@ -18,14 +18,16 @@ if (!$slotId) {
 }
 
 // Fetch slot details
-$stmt = $pdo->prepare("SELECT * FROM slots WHERE id = :id AND available = 1");
+$stmt = $pdo->prepare("SELECT * FROM slots WHERE id = :id");
 $stmt->execute(['id' => $slotId]);
 $slot = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$slot) {
-    header("Location: " . $baseUrl . "/index.php?page=home&status=error&message=Slot not available.");
+    header("Location: " . $baseUrl . "/index.php?page=home&status=error&message=Slot not found.");
     exit;
 }
+
+$isAvailable = $slot['available'] == 1;
 
 // Determine available duration types
 $availableTypes = [];
@@ -138,9 +140,11 @@ $defaultType = $availableTypes[0] ?? 'daily';
             <p class="estimated text-danger">Estimated Cost: <span id="estimatedCost">₱0.00</span></p>
 
             <div class="button-row">
-                <button id="submitBtn" class="paypal-btn">
-                    <i class="fab fa-paypal"></i>
-                    Pay with PayPal
+                <button id="submitBtn" class="<?= $isAvailable ? 'paypal-btn' : 'secondary' ?>">
+                    <?php if ($isAvailable): ?>
+                        <i class="fab fa-paypal"></i>
+                    <?php endif; ?>
+                    <?= $isAvailable ? 'Pay with PayPal' : 'Join Waitlist' ?>
                 </button>
 
                 <a href="<?= $baseUrl ?>/index.php?page=home" class="secondary">Cancel</a>
@@ -465,19 +469,25 @@ $defaultType = $availableTypes[0] ?? 'daily';
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Store booking ID
-                    document.getElementById('bookingId').value = data.booking_id;
+                    if (data.booking_id) {
+                        // Store booking ID
+                        document.getElementById('bookingId').value = data.booking_id;
 
-                    // Show payment step
-                    document.getElementById('bookingForm').style.display = 'none';
-                    document.getElementById('paymentStep').style.display = 'block';
+                        // Show payment step
+                        document.getElementById('bookingForm').style.display = 'none';
+                        document.getElementById('paymentStep').style.display = 'block';
 
-                    // Update payment amount
-                    const amount = document.getElementById('estimatedCost').textContent.replace('₱', '');
-                    document.getElementById('paymentAmount').textContent = amount;
+                        // Update payment amount
+                        const amount = document.getElementById('estimatedCost').textContent.replace('₱', '');
+                        document.getElementById('paymentAmount').textContent = amount;
 
-                    // Initialize PayPal button
-                    initPayPalButton(data.booking_id, amount);
+                        // Initialize PayPal button
+                        initPayPalButton(data.booking_id, amount);
+                    } else {
+                        // Waitlist
+                        alert(data.message);
+                        window.location.href = '<?php echo $baseUrl; ?>/index.php?page=slots';
+                    }
                 } else {
                     alert('Error: ' + data.message);
                 }

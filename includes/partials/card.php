@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/database.php';
 
 $isLoggedIn = isset($_SESSION['user_id']);
+$userId = $_SESSION['user_id'] ?? null;
 
 // Fetch slots
 $limit = $limit ?? 0; // Default to all for other pages
@@ -11,6 +12,32 @@ if ($limit > 0) {
 }
 $stmt = $pdo->query($query);
 $parkingSpaces = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch user's active bookings if logged in
+$userActiveBookings = [];
+if ($isLoggedIn && $userId) {
+    $stmt = $pdo->prepare("SELECT slot_id FROM bookings WHERE user_id = :user_id AND status = 'active'");
+    $stmt->execute(['user_id' => $userId]);
+    $userActiveBookings = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+// Create a lookup array for faster checking
+$userActiveBookingSlots = array_flip($userActiveBookings);
+
+// Check for any active bookings on slots (regardless of available column) with end times
+$stmt = $pdo->prepare("SELECT slot_id, end_time FROM bookings WHERE status = 'active' ORDER BY end_time ASC");
+$stmt->execute();
+$activeBookingsData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$slotsWithActiveBookings = [];
+$slotEndTimes = [];
+foreach ($activeBookingsData as $booking) {
+    $slotId = $booking['slot_id'];
+    if (!isset($slotsWithActiveBookings[$slotId])) {
+        $slotsWithActiveBookings[$slotId] = true;
+        $slotEndTimes[$slotId] = $booking['end_time'];
+    }
+}
 ?>
 
 <div class="row g-4">
@@ -51,10 +78,40 @@ $parkingSpaces = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <!-- Card Content -->
                         <div class="margin-top-auto p-3 gap-2 d-flex flex-column">
+                            <?php
+                            // Determine button text based on user booking status
+                            $buttonText = '';
+                            $buttonClass = 'card__btn2';
+                            $buttonDisabled = '';
+                            $onclickAction = "handleBooking({$space['id']}, " . ($isLoggedIn ? 'true' : 'false') . ")";
+                            
+                            if ($isLoggedIn && isset($userActiveBookingSlots[$space['id']])) {
+                                // User has an active booking for this slot
+                                $buttonText = 'Currently Using';
+                                $buttonClass = 'card__btn2 btn-success';
+                                $buttonDisabled = 'disabled';
+                                $onclickAction = '';
+                            } elseif (isset($slotsWithActiveBookings[$space['id']])) {
+                                // Slot has active bookings (by other users) - show waitlist with end time
+                                $endTime = $slotEndTimes[$space['id']] ?? null;
+                                if ($endTime) {
+                                    $buttonText = 'Join Waitlist (Available: ' . date('M d, h:i A', strtotime($endTime)) . ')';
+                                } else {
+                                    $buttonText = 'Join Waitlist';
+                                }
+                            } elseif ($space['available']) {
+                                // Slot is available and user doesn't have active booking
+                                $buttonText = 'Book This';
+                            } else {
+                                // Slot is marked unavailable but no active bookings - show waitlist
+                                $buttonText = 'Join Waitlist';
+                            }
+                            ?>
                             <button
-                                class="card__btn2 <?= $space['available'] ? '' : 'disabled' ?>"
-                                onclick="event.stopPropagation(); event.preventDefault(); handleBooking(<?= $space['id'] ?>, <?= $isLoggedIn ? 'true' : 'false' ?>)">
-                                <?= $space['available'] ? 'Book This' : 'Unavailable' ?>
+                                class="<?= $buttonClass ?>"
+                                <?= $buttonDisabled ?>
+                                onclick="<?= $onclickAction ?>">
+                                <?= $buttonText ?>
                             </button>
                         </div>
 
