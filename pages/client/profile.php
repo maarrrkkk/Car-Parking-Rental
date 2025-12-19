@@ -91,11 +91,24 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="list-group">
                                     <?php foreach ($bookings as $booking): ?>
                                         <div class="list-group-item">
-                                            <h6 class="mb-1"><?= htmlspecialchars($booking['slot_name']) ?></h6>
-                                            <p class="mb-1">Start: <?= date('M d, Y H:i', strtotime($booking['start_time'])) ?></p>
-                                            <p class="mb-1">End: <?= $booking['end_time'] ? date('M d, Y H:i', strtotime($booking['end_time'])) : 'Ongoing' ?></p>
-                                            <p class="mb-1">Status: <span class="badge bg-<?= $booking['status'] === 'pending' ? 'info' : ($booking['status'] === 'active' ? 'warning' : ($booking['status'] === 'completed' ? 'success' : ($booking['status'] === 'cancelled' ? 'danger' : 'secondary'))) ?>"><?= ucfirst($booking['status']) ?></span></p>
-                                            <p class="mb-0">Amount: ₱<?= number_format($booking['amount'], 2) ?></p>
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1"><?= htmlspecialchars($booking['slot_name']) ?></h6>
+                                                    <p class="mb-1">Start: <?= date('M d, Y H:i', strtotime($booking['start_time'])) ?></p>
+                                                    <p class="mb-1">End: <?= $booking['end_time'] ? date('M d, Y H:i', strtotime($booking['end_time'])) : 'Ongoing' ?></p>
+                                                    <p class="mb-1">Status: <span class="badge bg-<?= $booking['status'] === 'pending' ? 'info' : ($booking['status'] === 'active' ? 'warning' : ($booking['status'] === 'completed' ? 'success' : ($booking['status'] === 'cancelled' ? 'danger' : 'secondary'))) ?>"><?= ucfirst($booking['status']) ?></span></p>
+                                                    <p class="mb-0">Amount: ₱<?= number_format($booking['amount'], 2) ?></p>
+                                                </div>
+                                                <div class="ms-2">
+                                                    <?php if ($booking['status'] !== 'active'): ?>
+                                                        <button class="btn btn-sm btn-danger" onclick="cancelBooking(<?= $booking['id'] ?>, '<?= htmlspecialchars($booking['slot_name']) ?>')" title="Cancel Booking">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-warning" title="Cannot cancel active bookings">Active</span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -142,6 +155,65 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </section>
 
 <script>
+    // Cancel booking function with enhanced error handling
+    function cancelBooking(bookingId, slotName) {
+        if (confirm(`Are you sure you want to cancel your booking for ${slotName}?`)) {
+            console.log('Attempting to cancel booking:', bookingId);
+            
+            const requestData = {
+                action: 'cancel',
+                booking_id: bookingId
+            };
+            
+            console.log('Request data:', requestData);
+            
+            fetch('../../api/booking.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return response.text();
+            })
+            .then(text => {
+                console.log('Raw response text:', text);
+                
+                if (!text.trim()) {
+                    throw new Error('Empty response from server');
+                }
+                
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Parsed response data:', data);
+                    
+                    if (data.success) {
+                        alert('Booking cancelled successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + (data.message || 'Unknown error occurred'));
+                    }
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    console.log('Failed to parse JSON from:', text);
+                    alert('Server returned invalid response. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error details:', error);
+                alert('Network error: ' + error.message + '. Please check your connection and try again.');
+            });
+        }
+    }
+
     // Change Password Form
     document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -154,7 +226,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return;
         }
 
-        fetch('<?php echo $baseUrl; ?>/api/user.php?action=change_password', {
+        fetch('../../api/user.php?action=change_password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -174,8 +246,8 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             })
             .catch(error => {
+                console.error('Password change error:', error);
                 alert('An error occurred. Please try again.');
-                console.error(error);
             });
     });
 
@@ -187,7 +259,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         const email = document.getElementById('editEmail').value;
         const phone = document.getElementById('editPhone').value;
 
-        fetch('<?php echo $baseUrl; ?>/api/user.php?action=update_profile', {
+        fetch('../../api/user.php?action=update_profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -209,8 +281,8 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             })
             .catch(error => {
+                console.error('Profile update error:', error);
                 alert('An error occurred. Please try again.');
-                console.error(error);
             });
     });
 </script>

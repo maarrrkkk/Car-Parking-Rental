@@ -71,22 +71,24 @@ $defaultType = $availableTypes[0] ?? 'daily';
         </div>
 
         <!-- Booking Form -->
-        <form id="bookingForm" class="booking-form">
+        <form id="bookingForm" class="booking-form" method="post">
             <input type="hidden" name="slot_id" value="<?= $slot['id'] ?>">
 
-            <?php if (count($availableTypes) > 1): ?>
-                <div class="form-group">
-                    <label>Duration Type</label>
-                    <select id="duration_type" name="duration_type" required>
+            <div class="form-group">
+                <label>Duration Type</label>
+                <select id="duration_type" name="duration_type" required>
+                    <?php if (count($availableTypes) > 1): ?>
                         <?php foreach ($availableTypes as $type): ?>
                             <option value="<?= $type ?>"><?= ucfirst($type) ?></option>
                         <?php endforeach; ?>
-                    </select>
-                </div>
-            <?php else: ?>
-                <input type="hidden" id="duration_type" name="duration_type" value="<?= $defaultType ?>">
-            <?php endif; ?>
+                    <?php else: ?>
+                        <!-- Always show at least daily option, even if it's the only one -->
+                        <option value="<?= $defaultType ?>"><?= ucfirst($defaultType) ?></option>
+                    <?php endif; ?>
+                </select>
+            </div>
 
+            <?php if (in_array('hourly', $availableTypes)): ?>
             <!-- Hourly Fields -->
             <div id="hourlyFields" class="form-group hidden">
                 <label>Booking Date</label>
@@ -108,22 +110,25 @@ $defaultType = $availableTypes[0] ?? 'daily';
                 </div>
                 <p id="hourlyDurationInfo" class="info"></p>
             </div>
+            <?php endif; ?>
 
-            <!-- Daily Fields -->
+            <!-- Daily Fields - ALWAYS SHOWN for identical behavior -->
             <div id="dailyFields" class="form-group hidden">
                 <label>Start Date</label>
-                <input type="date" id="start_date" name="start_date">
+                <input type="date" id="start_date" name="start_date" min="">
 
                 <label>End Date</label>
-                <input type="date" id="end_date" name="end_date">
+                <input type="date" id="end_date" name="end_date" min="">
             </div>
 
+            <?php if (in_array('monthly', $availableTypes)): ?>
             <!-- Monthly Fields -->
             <div id="monthlyFields" class="form-group hidden">
                 <label>Start Date</label>
                 <input type="date" id="start_date_monthly" name="start_date_monthly">
                 <p id="monthlyEndDate" class="info">End Date: Select a start date</p>
             </div>
+            <?php endif; ?>
 
             <div class="form-group">
                 <label>Vehicle Type</label>
@@ -247,31 +252,65 @@ $defaultType = $availableTypes[0] ?? 'daily';
     // Toggle form fields based on duration type
     function toggleFields() {
         const durationType = document.getElementById('duration_type').value;
-        document.getElementById('hourlyFields').style.display = durationType === 'hourly' ? 'block' : 'none';
-        document.getElementById('dailyFields').style.display = durationType === 'daily' ? 'block' : 'none';
-        document.getElementById('monthlyFields').style.display = durationType === 'monthly' ? 'block' : 'none';
+        console.log('toggleFields called with durationType:', durationType);
+        
+        // Show/hide fields that exist - IDENTICAL BEHAVIOR FOR ALL SLOTS
+        const hourlyFields = document.getElementById('hourlyFields');
+        const dailyFields = document.getElementById('dailyFields');
+        const monthlyFields = document.getElementById('monthlyFields');
+        
+        console.log('Fields exist - hourly:', !!hourlyFields, 'daily:', !!dailyFields, 'monthly:', !!monthlyFields);
+        
+        // Always show fields based on duration type - NO CONDITIONAL LOGIC BASED ON SLOT TYPE
+        if (hourlyFields) {
+            hourlyFields.style.display = durationType === 'hourly' ? 'block' : 'none';
+        }
+        if (dailyFields) {
+            dailyFields.style.display = durationType === 'daily' ? 'block' : 'none';
+        }
+        if (monthlyFields) {
+            monthlyFields.style.display = durationType === 'monthly' ? 'block' : 'none';
+        }
 
-        // Set required attributes
-        document.getElementById('hourly_date').required = durationType === 'hourly';
-        document.getElementById('start_time_hourly').required = durationType === 'hourly';
-        document.getElementById('end_time_hourly').required = durationType === 'hourly';
-        document.getElementById('start_date').required = durationType === 'daily';
-        document.getElementById('end_date').required = durationType === 'daily';
-        document.getElementById('start_date_monthly').required = durationType === 'monthly';
+        // Set required attributes - IDENTICAL FOR ALL SLOTS
+        if (document.getElementById('hourly_date')) {
+            document.getElementById('hourly_date').required = durationType === 'hourly';
+        }
+        if (document.getElementById('start_time_hourly')) {
+            document.getElementById('start_time_hourly').required = durationType === 'hourly';
+        }
+        if (document.getElementById('end_time_hourly')) {
+            document.getElementById('end_time_hourly').required = durationType === 'hourly';
+        }
+        if (document.getElementById('start_date')) {
+            document.getElementById('start_date').required = durationType === 'daily';
+        }
+        if (document.getElementById('end_date')) {
+            document.getElementById('end_date').required = durationType === 'daily';
+        }
+        if (document.getElementById('start_date_monthly')) {
+            document.getElementById('start_date_monthly').required = durationType === 'monthly';
+        }
 
-        // Initialize hourly time dropdowns when hourly is selected
-        if (durationType === 'hourly') {
+        // Initialize fields when duration is selected - IDENTICAL FOR ALL SLOTS
+        if (durationType === 'hourly' && hourlyFields) {
             populateStartTimeOptions();
             populateEndTimeOptions();
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('hourly_date').min = today;
+        } else if (durationType === 'daily' && dailyFields) {
+            // Set minimum date to today for daily booking - SAME FOR ALL SLOTS
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start_date').min = today;
+            document.getElementById('end_date').min = today;
         }
 
+        console.log('Calling calculateCost');
         calculateCost();
     }
 
-    // Calculate estimated cost
+    // Calculate estimated cost - IDENTICAL LOGIC FOR ALL SLOTS
     function calculateCost() {
         const durationType = document.getElementById('duration_type').value;
         const vehicleType = document.getElementById('vehicle_type').value;
@@ -280,39 +319,59 @@ $defaultType = $availableTypes[0] ?? 'daily';
         let months = 0;
         let actualDurationType = durationType;
 
-        if (durationType === 'hourly') {
+        console.log('calculateCost called with durationType:', durationType);
+
+        // Check if fields exist - DAILY FIELDS ALWAYS EXIST NOW
+        const hourlyFieldsExist = document.getElementById('hourly_date') && document.getElementById('start_time_hourly') && document.getElementById('end_time_hourly');
+        const dailyFieldsExist = document.getElementById('start_date') && document.getElementById('end_date'); // ALWAYS TRUE
+        const monthlyFieldsExist = document.getElementById('start_date_monthly');
+
+        console.log('Fields exist - hourly:', hourlyFieldsExist, 'daily:', dailyFieldsExist, 'monthly:', monthlyFieldsExist);
+
+        if (durationType === 'hourly' && hourlyFieldsExist) {
             const hourlyDate = document.getElementById('hourly_date').value;
             const startTime = document.getElementById('start_time_hourly').value;
             const endTime = document.getElementById('end_time_hourly').value;
-            
+
             if (hourlyDate && startTime && endTime) {
                 const startHour = parseInt(startTime.split(':')[0]);
                 const endHour = parseInt(endTime.split(':')[0]);
                 hours = endHour - startHour;
             }
-            
-            updateHourlyDurationInfo();
-        } else if (durationType === 'daily') {
+
+            if (document.getElementById('hourlyDurationInfo')) {
+                updateHourlyDurationInfo();
+            }
+        } else if (durationType === 'daily' && dailyFieldsExist) {
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
+            console.log('Daily fields - startDate:', startDate, 'endDate:', endDate);
             if (startDate && endDate) {
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1; // inclusive
-                if (days >= 30 && <?= $slot['monthly_rate'] ?> > 0) {
+                console.log('Days calculated:', days);
+                
+                // Check if monthly rate is available and worth switching to
+                const monthlyRateAvailable = <?= $slot['monthly_rate'] ?> > 0;
+                if (days >= 30 && monthlyRateAvailable) {
                     actualDurationType = 'monthly';
                     months = Math.ceil(days / 30);
                 } else {
-                    hours = days * 24;
+                    // For ALL slots, use daily calculation when daily is selected
+                    actualDurationType = 'daily';
+                    hours = days * 24; // Keep for potential hourly rate calculations if needed
                 }
             }
-        } else if (durationType === 'monthly') {
+        } else if (durationType === 'monthly' && monthlyFieldsExist) {
             const startDate = document.getElementById('start_date_monthly').value;
             if (startDate) {
                 const start = new Date(startDate);
                 const end = new Date(start);
                 end.setDate(start.getDate() + 30);
-                document.getElementById('monthlyEndDate').textContent = 'End Date: ' + end.toISOString().slice(0, 10);
+                if (document.getElementById('monthlyEndDate')) {
+                    document.getElementById('monthlyEndDate').textContent = 'End Date: ' + end.toISOString().slice(0, 10);
+                }
                 months = 1;
                 hours = 24 * 30;
             }
@@ -325,7 +384,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
             let baseCost = 0;
             let vehicleRate = 0;
 
-            // Get base rate
+            // Get base rate - IDENTICAL CALCULATION FOR ALL SLOTS
             if (actualDurationType === 'hourly') {
                 baseCost = hours * <?= $slot['hourly_rate'] ?>;
             } else if (actualDurationType === 'daily') {
@@ -334,7 +393,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                 baseCost = months * <?= $slot['monthly_rate'] ?>;
             }
 
-            // Get vehicle rate
+            // Get vehicle rate - IDENTICAL FOR ALL SLOTS
             const vehicleRates = {
                 'motorcycle': <?= $slot['motorcycle_rate'] ?>,
                 'car': <?= $slot['car_rate'] ?>,
@@ -346,7 +405,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
 
             vehicleRate = vehicleRates[vehicleType] || 0;
 
-            // Apply vehicle rate based on duration
+            // Apply vehicle rate based on duration - IDENTICAL FOR ALL SLOTS
             if (actualDurationType === 'hourly') {
                 vehicleRate *= hours;
             } else if (actualDurationType === 'daily') {
@@ -358,7 +417,17 @@ $defaultType = $availableTypes[0] ?? 'daily';
             const totalCost = baseCost + vehicleRate;
             document.getElementById('estimatedCost').textContent = '₱' + formatCurrency(totalCost);
 
-            // Update duration type display if switched
+            // Enable/disable submit button based on cost - IDENTICAL FOR ALL SLOTS
+            const submitBtn = document.getElementById('submitBtn');
+            if (totalCost > 0) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Pay with PayPal';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Select dates to estimate cost';
+            }
+
+            // Update duration type display if switched - IDENTICAL FOR ALL SLOTS
             if (actualDurationType !== durationType) {
                 document.getElementById('duration_type').value = actualDurationType;
                 toggleFields();
@@ -368,40 +437,54 @@ $defaultType = $availableTypes[0] ?? 'daily';
         }
     }
 
-    // Initial toggle
+    // Initial toggle - IDENTICAL FOR ALL SLOTS
+    console.log('Initial toggleFields call');
+    console.log('Default type:', '<?= $defaultType ?>');
+    console.log('Available types:', <?= json_encode($availableTypes) ?>);
     toggleFields();
 
-    // Event listeners
+    // Event listeners - IDENTICAL FOR ALL SLOTS
     document.getElementById('duration_type').addEventListener('change', function() {
         toggleFields();
         calculateCost();
     });
-    document.getElementById('hourly_date').addEventListener('change', calculateCost);
-    document.getElementById('start_time_hourly').addEventListener('change', function() {
-        populateEndTimeOptions();
-        // Reset end time when start time changes
-        document.getElementById('end_time_hourly').value = '';
-        calculateCost();
-    });
-    document.getElementById('end_time_hourly').addEventListener('change', calculateCost);
-    document.getElementById('start_date').addEventListener('change', calculateCost);
-    document.getElementById('end_date').addEventListener('change', calculateCost);
-    document.getElementById('start_date_monthly').addEventListener('change', calculateCost);
+    if (document.getElementById('hourly_date')) {
+        document.getElementById('hourly_date').addEventListener('input', calculateCost);
+    }
+    if (document.getElementById('start_time_hourly')) {
+        document.getElementById('start_time_hourly').addEventListener('change', function() {
+            populateEndTimeOptions();
+            // Reset end time when start time changes
+            document.getElementById('end_time_hourly').value = '';
+            calculateCost();
+        });
+    }
+    if (document.getElementById('end_time_hourly')) {
+        document.getElementById('end_time_hourly').addEventListener('change', calculateCost);
+    }
+    // DAILY FIELD EVENT LISTENERS - ALWAYS ATTACHED FOR CONSISTENT BEHAVIOR
+    document.getElementById('start_date').addEventListener('input', calculateCost);
+    document.getElementById('end_date').addEventListener('input', calculateCost);
+    if (document.getElementById('start_date_monthly')) {
+        document.getElementById('start_date_monthly').addEventListener('input', calculateCost);
+    }
     document.getElementById('vehicle_type').addEventListener('change', calculateCost);
 
-    // Form submission - Proceed to Payment
-    document.getElementById('bookingForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Form submission - IDENTICAL VALIDATION FOR ALL SLOTS
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        // Validate form
+        // Validate form - SAME LOGIC FOR ALL SLOTS
         const durationType = document.getElementById('duration_type').value;
         let isValid = true;
 
         if (durationType === 'hourly') {
-            const hourlyDate = document.getElementById('hourly_date').value;
-            const startTime = document.getElementById('start_time_hourly').value;
-            const endTime = document.getElementById('end_time_hourly').value;
-            
+            const hourlyDate = document.getElementById('hourly_date') ? document.getElementById('hourly_date').value : '';
+            const startTime = document.getElementById('start_time_hourly') ? document.getElementById('start_time_hourly').value : '';
+            const endTime = document.getElementById('end_time_hourly') ? document.getElementById('end_time_hourly').value : '';
+
             if (!hourlyDate) {
                 alert('Please select a booking date for hourly booking.');
                 isValid = false;
@@ -413,6 +496,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                 isValid = false;
             }
         } else if (durationType === 'daily') {
+            // DAILY VALIDATION - IDENTICAL FOR ALL SLOTS
             const start = document.getElementById('start_date').value;
             const end = document.getElementById('end_date').value;
             if (!start || !end || new Date(start) > new Date(end)) {
@@ -420,7 +504,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                 isValid = false;
             }
         } else if (durationType === 'monthly') {
-            const start = document.getElementById('start_date_monthly').value;
+            const start = document.getElementById('start_date_monthly') ? document.getElementById('start_date_monthly').value : '';
             if (!start) {
                 alert('Please select a start date for monthly booking.');
                 isValid = false;
@@ -429,7 +513,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
 
         if (!isValid) return;
 
-        // Create booking first
+        // Create booking first - SAME FOR ALL SLOTS
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Creating Booking...';
@@ -437,21 +521,22 @@ $defaultType = $availableTypes[0] ?? 'daily';
         const formData = new FormData(this);
         const durationTypeVal = document.getElementById('duration_type').value;
 
-        // Generate start_time and end_time based on inputs
+        // Generate start_time and end_time based on inputs - IDENTICAL FOR ALL SLOTS
         let startTime, endTime;
         if (durationTypeVal === 'hourly') {
-            const hourlyDate = document.getElementById('hourly_date').value;
-            const startTimeVal = document.getElementById('start_time_hourly').value;
-            const endTimeVal = document.getElementById('end_time_hourly').value;
+            const hourlyDate = document.getElementById('hourly_date') ? document.getElementById('hourly_date').value : '';
+            const startTimeVal = document.getElementById('start_time_hourly') ? document.getElementById('start_time_hourly').value : '';
+            const endTimeVal = document.getElementById('end_time_hourly') ? document.getElementById('end_time_hourly').value : '';
             startTime = hourlyDate + ' ' + startTimeVal + ':00';
             endTime = hourlyDate + ' ' + endTimeVal + ':00';
         } else if (durationTypeVal === 'daily') {
+            // DAILY BOOKING - IDENTICAL FOR ALL SLOTS
             const startDate = document.getElementById('start_date').value;
             const endDate = document.getElementById('end_date').value;
             startTime = startDate + ' 00:00:00';
             endTime = endDate + ' 23:59:59';
         } else if (durationTypeVal === 'monthly') {
-            const startDate = document.getElementById('start_date_monthly').value;
+            const startDate = document.getElementById('start_date_monthly') ? document.getElementById('start_date_monthly').value : '';
             startTime = startDate + ' 00:00:00';
             const start = new Date(startDate);
             const end = new Date(start);
@@ -468,20 +553,31 @@ $defaultType = $availableTypes[0] ?? 'daily';
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Booking API response:', data);
                 if (data.success) {
                     if (data.booking_id) {
                         // Store booking ID
                         document.getElementById('bookingId').value = data.booking_id;
+                        console.log('Booking ID stored:', data.booking_id);
 
                         // Show payment step
-                        document.getElementById('bookingForm').style.display = 'none';
-                        document.getElementById('paymentStep').style.display = 'block';
+                        const bookingForm = document.getElementById('bookingForm');
+                        const paymentStep = document.getElementById('paymentStep');
+                        console.log('Forms found - bookingForm:', !!bookingForm, 'paymentStep:', !!paymentStep);
+                        
+                        if (bookingForm) bookingForm.style.display = 'none';
+                        if (paymentStep) paymentStep.style.display = 'block';
 
                         // Update payment amount
-                        const amount = document.getElementById('estimatedCost').textContent.replace('₱', '');
-                        document.getElementById('paymentAmount').textContent = amount;
+                        const amountElement = document.getElementById('estimatedCost');
+                        const amount = amountElement ? amountElement.textContent.replace('₱', '').replace(/,/g, '') : '0';
+                        console.log('Amount to pay:', amount);
+                        
+                        const paymentAmountElement = document.getElementById('paymentAmount');
+                        if (paymentAmountElement) paymentAmountElement.textContent = amount;
 
                         // Initialize PayPal button
+                        console.log('Initializing PayPal button with booking ID:', data.booking_id, 'Amount:', amount);
                         initPayPalButton(data.booking_id, amount);
                     } else {
                         // Waitlist
@@ -500,25 +596,49 @@ $defaultType = $availableTypes[0] ?? 'daily';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Proceed to Payment';
             });
-    });
+        });
+    } else {
+        console.error('Booking form not found!');
+    }
 
 
-    // Back to Form
+    // Back to Form - IDENTICAL FOR ALL SLOTS
     document.getElementById('backToFormBtn').addEventListener('click', function() {
         document.getElementById('paymentStep').style.display = 'none';
         document.getElementById('bookingForm').style.display = 'block';
     });
 
-    // PayPal Integration
+    // PayPal Integration - IDENTICAL FOR ALL SLOTS
     function initPayPalButton(bookingId, amount) {
+        console.log('PayPal function called. PayPal defined:', typeof paypal !== 'undefined');
+        console.log('Booking ID:', bookingId, 'Amount:', amount);
+        
+        const paypalContainer = document.getElementById('paypal-button-container');
+        console.log('PayPal container found:', !!paypalContainer);
+        
         if (typeof paypal === 'undefined') {
             alert('PayPal SDK not loaded. Please refresh the page and try again.');
             return;
         }
+        
+        if (!paypalContainer) {
+            alert('PayPal button container not found!');
+            return;
+        }
+        
         // Clear existing buttons
-        document.getElementById('paypal-button-container').innerHTML = '';
+        paypalContainer.innerHTML = '';
+        console.log('Creating PayPal button...');
+        
         paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color:  'gold',
+                shape:  'rect',
+                label:  'paypal'
+            },
             createOrder: function(data, actions) {
+                console.log('Creating PayPal order...');
                 return fetch('<?php echo $baseUrl; ?>/api/payment.php', {
                         method: 'POST',
                         headers: {
@@ -530,6 +650,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                         return response.json();
                     })
                     .then(function(orderData) {
+                        console.log('Order data:', orderData);
                         if (orderData.success) {
                             return orderData.order_id;
                         } else {
@@ -538,6 +659,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                     });
             },
             onApprove: function(data, actions) {
+                console.log('Payment approved, capturing order...');
                 return fetch('<?php echo $baseUrl; ?>/api/payment.php', {
                         method: 'POST',
                         headers: {
@@ -549,6 +671,7 @@ $defaultType = $availableTypes[0] ?? 'daily';
                         return response.json();
                     })
                     .then(function(captureData) {
+                        console.log('Capture data:', captureData);
                         if (captureData.success) {
                             alert('Payment completed successfully! Your booking is now active.');
                             window.location.href = '<?php echo $baseUrl; ?>/index.php?page=profile';
@@ -560,8 +683,13 @@ $defaultType = $availableTypes[0] ?? 'daily';
             onError: function(err) {
                 console.error('PayPal error:', err);
                 alert('An error occurred with PayPal. Please try again.');
+            },
+            onCancel: function(data) {
+                console.log('Payment cancelled by user');
+                alert('Payment was cancelled. You can return to the booking form.');
             }
         }).render('#paypal-button-container');
+        console.log('PayPal button rendered');
     }
 </script>
 

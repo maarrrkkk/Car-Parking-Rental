@@ -114,11 +114,30 @@ try {
             payment_method ENUM('paypal','gcash') DEFAULT 'paypal',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE
+            FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE,
+            INDEX idx_user_id (user_id),
+            INDEX idx_slot_id (slot_id),
+            INDEX idx_status (status),
+            INDEX idx_start_time (start_time)
         ) ENGINE=InnoDB;
     ");
     if ($showOutput) echo "Bookings table created.<br>";
 
+    // Create waitlist table
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS waitlist (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            slot_id INT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (slot_id) REFERENCES slots(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_user_slot (user_id, slot_id),
+            INDEX idx_user_id (user_id),
+            INDEX idx_slot_id (slot_id)
+        ) ENGINE=InnoDB;
+    ");
+    if ($showOutput) echo "Waitlist table created.<br>";
 
     // Ensure bookings table has required columns (for existing databases)
     $pdo->exec("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS vehicle_type ENUM('motorcycle','car','suv','van','truck','mini_truck') NOT NULL DEFAULT 'car'");
@@ -135,16 +154,22 @@ try {
     $check->execute();
     $count = $check->fetchColumn();
 
+    $adminFirstname = $env['ADMIN_FIRSTNAME'] ?? 'Super';
+    $adminLastname = $env['ADMIN_LASTNAME'] ?? 'Admin';
+    $adminEmail = $env['ADMIN_EMAIL'] ?? 'admin@carparking.com';
+    $adminPhone = $env['ADMIN_PHONE'] ?? '09678451234';
+    $adminPassword = $env['ADMIN_PASSWORD'] ?? 'Qwerty12345';
+
     if ($count == 0) {
         $stmt = $pdo->prepare("INSERT INTO users (role, firstname, lastname, email, phone, password, status, email_verified)
                                 VALUES (:role, :firstname, :lastname, :email, :phone, :password, :status, 1)");
         $stmt->execute([
             ':role' => 'admin',
-            ':firstname' => $env['ADMIN_FIRSTNAME'] ?? 'System',
-            ':lastname'  => $env['ADMIN_LASTNAME'] ?? 'Admin',
-            ':email'     => $env['ADMIN_EMAIL'] ?? 'admin@example.com',
-            ':phone'     => $env['ADMIN_PHONE'] ?? '0000000000',
-            ':password'  => password_hash($env['ADMIN_PASSWORD'] ?? 'admin123', PASSWORD_BCRYPT),
+            ':firstname' => $adminFirstname,
+            ':lastname'  => $adminLastname,
+            ':email'     => $adminEmail,
+            ':phone'     => $adminPhone,
+            ':password'  => password_hash($adminPassword, PASSWORD_BCRYPT),
             ':status'    => 'Active'
         ]);
         if ($showOutput) echo "Default admin user created.<br>";
@@ -152,10 +177,43 @@ try {
         if ($showOutput) echo "Admin user already exists.<br>";
     }
 
+    // Insert sample parking slots if none exist
+    $checkSlots = $pdo->prepare("SELECT COUNT(*) FROM slots");
+    $checkSlots->execute();
+    $slotCount = $checkSlots->fetchColumn();
+
+    if ($slotCount == 0) {
+        $sampleSlots = [
+            ['name' => 'Slot A1', 'hourly_rate' => 50.00, 'daily_rate' => 300.00, 'monthly_rate' => 5000.00],
+            ['name' => 'Slot A2', 'hourly_rate' => 50.00, 'daily_rate' => 300.00, 'monthly_rate' => 5000.00],
+            ['name' => 'Slot A3', 'hourly_rate' => 50.00, 'daily_rate' => 300.00, 'monthly_rate' => 5000.00],
+            ['name' => 'Slot B1', 'hourly_rate' => 60.00, 'daily_rate' => 350.00, 'monthly_rate' => 6000.00],
+            ['name' => 'Slot B2', 'hourly_rate' => 60.00, 'daily_rate' => 350.00, 'monthly_rate' => 6000.00],
+            ['name' => 'Slot B3', 'hourly_rate' => 60.00, 'daily_rate' => 350.00, 'monthly_rate' => 6000.00],
+            ['name' => 'Slot C1', 'hourly_rate' => 70.00, 'daily_rate' => 400.00, 'monthly_rate' => 7000.00],
+            ['name' => 'Slot C2', 'hourly_rate' => 70.00, 'daily_rate' => 400.00, 'monthly_rate' => 7000.00],
+            ['name' => 'Slot C3', 'hourly_rate' => 70.00, 'daily_rate' => 400.00, 'monthly_rate' => 7000.00],
+            ['name' => 'Slot VIP1', 'hourly_rate' => 100.00, 'daily_rate' => 600.00, 'monthly_rate' => 12000.00]
+        ];
+
+        $stmt = $pdo->prepare("INSERT INTO slots (name, hourly_rate, daily_rate, monthly_rate, available) VALUES (:name, :hourly_rate, :daily_rate, :monthly_rate, 1)");
+        
+        foreach ($sampleSlots as $slot) {
+            $stmt->execute($slot);
+        }
+        
+        if ($showOutput) echo "Sample parking slots created.<br>";
+    } else {
+        if ($showOutput) echo "Parking slots already exist.<br>";
+    }
+
     if ($showOutput) {
         echo "<br><strong>Database setup completed successfully!</strong><br>";
         echo "You can now access the application at index.php<br>";
-        echo "Admin login: admin@example.com / admin123<br>";
+        echo "<strong>Admin Login Credentials:</strong><br>";
+        echo "Email: " . htmlspecialchars($adminEmail) . "<br>";
+        echo "Password: " . htmlspecialchars($adminPassword) . "<br>";
+        echo "<br><em>Sample parking slots have been created. You can manage slots through the admin panel.</em><br>";
     }
 
 } catch (PDOException $e) {

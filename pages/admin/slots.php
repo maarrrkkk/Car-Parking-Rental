@@ -2,10 +2,34 @@
 include '../../includes/auth/admin_auth.php';
 require_once "../../includes/auth/fetch_data.php";
 
-
 // Auto-generate next slot name
 $slotCount = count($slots);
 $nextSlotName = "Slot " . chr(65 + $slotCount);
+
+// Display messages
+if (isset($_SESSION['success_message'])) {
+    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">';
+    echo htmlspecialchars($_SESSION['success_message']);
+    echo '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    echo '</div>';
+    unset($_SESSION['success_message']);
+}
+
+if (isset($_SESSION['error_message'])) {
+    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+    echo htmlspecialchars($_SESSION['error_message']);
+    echo '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    echo '</div>';
+    unset($_SESSION['error_message']);
+}
+
+if (isset($_SESSION['warning_message'])) {
+    echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">';
+    echo htmlspecialchars($_SESSION['warning_message']);
+    echo '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    echo '</div>';
+    unset($_SESSION['warning_message']);
+}
 ?>
 
 <section>
@@ -33,8 +57,8 @@ $nextSlotName = "Slot " . chr(65 + $slotCount);
 
                             <div class="col-sm-8">
                                 <div class="form-floating">
-                                    <input type="number" step="0.01" name="hourly_rate" id="hourly_rate" class="form-control" placeholder="Hourly Rate">
-                                    <label for="hourly_rate">Hourly Rate</label>
+                                    <input type="number" step="0.01" name="hourly_rate" id="hourly_rate" class="form-control" placeholder="Hourly Rate" required>
+                                    <label for="hourly_rate">Hourly Rate *</label>
                                 </div>
                             </div>
 
@@ -47,8 +71,8 @@ $nextSlotName = "Slot " . chr(65 + $slotCount);
 
                             <div class="col-sm-6">
                                 <div class="form-floating">
-                                    <input type="number" step="0.01" name="monthly_rate" id="monthly_rate" class="form-control" placeholder="Monthly Rate">
-                                    <label for="monthly_rate">Monthly Rate</label>
+                                    <input type="number" step="0.01" name="monthly_rate" id="monthly_rate" class="form-control" placeholder="Monthly Rate" required>
+                                    <label for="monthly_rate">Monthly Rate *</label>
                                 </div>
                             </div>
                         </div>
@@ -87,17 +111,33 @@ $nextSlotName = "Slot " . chr(65 + $slotCount);
                 <thead class="table-dark">
                     <tr>
                         <th>Name</th>
-                        <th>Hourly Rate</th>
+                        <th>
+                            Hourly Rate
+                            <span
+                                class="text-primary"
+                                data-bs-toggle="tooltip"
+                                title="Required field">
+                                <i class="bi bi-info-circle text-warning"></i>
+                            </span>
+                        </th>
                         <th>
                             Daily Rate
                             <span
                                 class="text-primary"
                                 data-bs-toggle="tooltip"
-                                title="This field is required">
+                                title="Required field">
                                 <i class="bi bi-info-circle text-warning"></i>
                             </span>
                         </th>
-                        <th>Monthly Rate</th>
+                        <th>
+                            Monthly Rate
+                            <span
+                                class="text-primary"
+                                data-bs-toggle="tooltip"
+                                title="Required field">
+                                <i class="bi bi-info-circle text-warning"></i>
+                            </span>
+                        </th>
                         <th>Available</th>
                         <th>Image</th>
                         <th>Action</th>
@@ -183,13 +223,13 @@ $nextSlotName = "Slot " . chr(65 + $slotCount);
                                         <input type="hidden" name="id" value="<?= $slot['id'] ?>">
 
                                         <input type="number" step="0.01" name="hourly_rate"
-                                            value="<?= $slot['hourly_rate'] ?>" class="form-control mb-2" placeholder="Hourly Rate">
+                                            value="<?= $slot['hourly_rate'] ?>" class="form-control mb-2" placeholder="Hourly Rate *" required>
 
                                         <input type="number" step="0.01" name="daily_rate"
-                                            value="<?= $slot['daily_rate'] ?>" class="form-control mb-2" placeholder="Daily Rate">
+                                            value="<?= $slot['daily_rate'] ?>" class="form-control mb-2" placeholder="Daily Rate *" required>
 
                                         <input type="number" step="0.01" name="monthly_rate"
-                                            value="<?= $slot['monthly_rate'] ?>" class="form-control mb-2" placeholder="Monthly Rate">
+                                            value="<?= $slot['monthly_rate'] ?>" class="form-control mb-2" placeholder="Monthly Rate *" required>
 
                                         <input type="file" name="image" class="form-control mb-2">
 

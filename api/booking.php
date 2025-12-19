@@ -15,6 +15,59 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $userId = $_SESSION['user_id'];
+$action = $_GET['action'] ?? $_POST['action'] ?? null;
+
+// Handle user-initiated booking cancellation
+if ($action === 'cancel') {
+    $bookingId = $_POST['booking_id'] ?? null;
+    
+    if (!$bookingId) {
+        echo json_encode(['success' => false, 'message' => 'Booking ID is required']);
+        exit;
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Verify booking belongs to user and get booking details
+        $stmt = $pdo->prepare("
+            SELECT b.*, s.available as slot_available 
+            FROM bookings b 
+            JOIN slots s ON b.slot_id = s.id 
+            WHERE b.id = :booking_id AND b.user_id = :user_id
+        ");
+        $stmt->execute(['booking_id' => $bookingId, 'user_id' => $userId]);
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$booking) {
+            echo json_encode(['success' => false, 'message' => 'Booking not found']);
+            exit;
+        }
+        
+        // Check if booking can be cancelled (not active)
+        if ($booking['status'] === 'active') {
+            echo json_encode(['success' => false, 'message' => 'Cannot cancel an active booking']);
+            exit;
+        }
+        
+        // Update booking status to cancelled
+        $stmt = $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE id = :booking_id");
+        $stmt->execute(['booking_id' => $bookingId]);
+        
+        // Clean up waitlist entries for this slot (in case there are any)
+        $stmt = $pdo->prepare("DELETE FROM waitlist WHERE slot_id = :slot_id");
+        $stmt->execute(['slot_id' => $booking['slot_id']]);
+        
+        $pdo->commit();
+        
+        echo json_encode(['success' => true, 'message' => 'Booking cancelled successfully']);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Failed to cancel booking: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
 $slotId = $_POST['slot_id'] ?? null;
 $startTime = $_POST['start_time'] ?? null;
 $endTime = $_POST['end_time'] ?? null;

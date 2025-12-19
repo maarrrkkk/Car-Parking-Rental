@@ -1,5 +1,6 @@
 <?php
 require_once "../../config/database.php"; // adjust path if needed
+session_start();
 
 // Folder for slot images
 $imageDir = "../../assets/images/parking_slots/";
@@ -52,6 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
 
         reorderSlots($pdo); // keep names in order
+        
+        $_SESSION['success_message'] = "Slot added successfully.";
         header("Location: ../../pages/admin/?current_page=slots");
         exit;
 
@@ -65,11 +68,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $available    = isset($_POST['available']) ? 1 : 0;
 
         // Fetch existing slot
-        $stmt = $pdo->prepare("SELECT image FROM slots WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT image, available FROM slots WHERE id = :id");
         $stmt->execute([':id' => $id]);
         $oldSlot = $stmt->fetch();
 
         $imagePath = $oldSlot['image'];
+        $oldAvailability = $oldSlot['available'];
+
+        // Check for active bookings if trying to make slot unavailable
+        if ($available == 0 && $oldAvailability == 1) {
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as active_count 
+                FROM bookings 
+                WHERE slot_id = :slot_id 
+                AND status = 'active'
+                AND (end_time IS NULL OR end_time > NOW())
+            ");
+            $stmt->execute([':slot_id' => $id]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result['active_count'] > 0) {
+                $_SESSION['error_message'] = "Cannot make slot unavailable: There are {$result['active_count']} active booking(s) for this slot.";
+                header("Location: ../../pages/admin/?current_page=slots");
+                exit;
+            }
+        }
+
+        // Check for active bookings if trying to make slot available
+        if ($available == 1 && $oldAvailability == 0) {
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) as pending_count 
+                FROM bookings 
+                WHERE slot_id = :slot_id 
+                AND status IN ('pending', 'active')
+            ");
+            $stmt->execute([':slot_id' => $id]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // If there are pending bookings, we can still make it available
+            // but this will allow new bookings while old ones are pending
+            if ($result['pending_count'] > 0) {
+                $_SESSION['warning_message'] = "Slot made available but there are {$result['pending_count']} pending/active booking(s).";
+            }
+        }
 
         // Handle image update
         if (!empty($_FILES['image']['name'])) {
@@ -95,6 +136,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
 
         reorderSlots($pdo);
+        
+        // Set success message
+        $_SESSION['success_message'] = "Slot updated successfully.";
         header("Location: ../../pages/admin/?current_page=slots");
         exit;
 
@@ -118,6 +162,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute([':id' => $id]);
 
         reorderSlots($pdo);
+        
+        $_SESSION['success_message'] = "Slot deleted successfully.";
         header("Location: ../../pages/admin/?current_page=slots");
         exit;
     }
@@ -139,3 +185,4 @@ function reorderSlots($pdo) {
         $i++;
     }
 }
+?>
